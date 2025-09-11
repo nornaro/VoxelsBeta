@@ -1,0 +1,303 @@
+class_name VoxelGenerator
+
+var map : Array[Voxel]
+var map_dict : Dictionary[Vector3i, Voxel]
+const sides = 6
+var settings : GenerationSettings
+var top_voxels : Array[Voxel]
+
+const ATLAS_RES   = Vector2i(512, 512)	# full atlas resolution in pixels
+const TILE_SIZE   = Vector2i(16, 16)	# usable area of one tile
+const TILE_STRIDE = Vector2i(18, 18)	# includes padding
+const TILE_MARGIN = Vector2i(4, 4)		# margin before first tile
+
+
+# Define base hexagon
+const base_vertices = [
+	Vector3(0.5, 0.0, -0.866),  # Left
+	Vector3(1.0, 0.0, 0.0),  # Top-right
+	Vector3(0.5, 0.0, 0.866),  # Bottom-right
+	Vector3(-0.5, 0.0, 0.866),  # Bottom-left
+	Vector3(-1.0, 0.0, 0.0),  # Left
+	Vector3(-0.5, 0.0, -0.866)  # Top-left
+	]
+
+func generate_chunk(_map : Array[Voxel], interval) -> Mesh:
+	map = _map
+	settings = WorldMap.world_settings
+	var verts = PackedVector3Array()
+	var indices = PackedInt32Array()
+	var uvs = PackedVector2Array()
+	
+	determine_air_voxels()
+	var shape_passes = shape_geometry()
+	print("Correction passes: ", shape_passes.x, ". Total voxels removed: ", shape_passes.y)
+	interval["Shaping -- "] = Time.get_ticks_msec()
+	print("vg settings noise caps..", settings.noise_caps)
+	for voxel in map:
+		determine_voxel_type(voxel)
+		var prism = build_hex_prism(voxel)
+		var v_offset = verts.size() # start at last indice to not overwrite old ones
+		verts.append_array(prism.verts)
+		uvs.append_array(prism.uvs)
+		for indice in prism.indices:
+			indices.append(indice + v_offset)
+
+	interval["Build voxels -- "] = Time.get_ticks_msec()
+
+	## Create surface
+	var surface = SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	
+	for v_index in range(verts.size()):
+		surface.set_uv(uvs[v_index])
+		surface.set_smooth_group(settings.shading)
+		surface.add_vertex(verts[v_index])
+
+	for i in indices:
+		surface.add_index(i)
+
+	surface.optimize_indices_for_cache()
+	surface.generate_normals()
+	surface.generate_tangents()
+	WorldMap.top_layer_voxels.clear()
+	WorldMap.top_layer_voxels.append_array(top_voxels)
+	return surface.commit()
+
+
+func determine_voxel_type(voxel: Voxel):
+	if voxel.type == VoxelData.voxel_type.AIR:
+		return
+
+	var tiles = VoxelData.tile_map.size()
+	var n = voxel.noise
+
+	# Normalize noise to [0,1] based on min/max
+	var min_n = settings.noise_caps.x
+	var max_n = settings.noise_caps.y
+	var norm = clamp((n - min_n) / (max_n - min_n), 0.0, 0.9999)
+	#print("n:", n, " min:", min_n, " max:", max_n, " norm:", norm)
+
+	var enum_index = int(floor(norm * float(tiles)))
+	if enum_index == 0: # turn air into something else
+		enum_index = randi_range(1, VoxelData.tile_map.size()-1)
+	voxel.type = enum_index as VoxelData.voxel_type
+
+
+func determine_air_voxels():
+	# Find min and max noise
+	var min_noise = 999999
+	var max_noise = -999999
+	for i in range(map.size()):
+		var voxel = map[i]
+		if voxel.noise < min_noise:
+			min_noise = voxel.noise
+		elif voxel.noise >= max_noise:
+			max_noise = voxel.noise
+
+	# calculate probabilities, take noise and height into account
+	for voxel in map:
+		var noise_contribution : float = (voxel.noise - min_noise) / (max_noise - min_noise) 
+		var y : float = voxel.grid_position_xyz.y
+		var normalized_height : float = clampf(y / settings.max_height, 0.0, 1.0)
+		var combined_probability : float = (1.0 - settings.noise_height_bias) * noise_contribution + settings.noise_height_bias * normalized_height
+		voxel.air_probability = clampf(combined_probability, 0.0, 1.0)
+		map_dict[voxel.grid_position_xyz] = voxel
+
+
+func shape_geometry() -> Vector2i:
+	var passes = 0
+	var remove = 0
+	var total = 0
+	var bytes : PackedByteArray
+	bytes.resize(map.size())
+	bytes.fill(0) #0 is solid, 1 is air
+	
+	while true:
+		# Adjust all solid voxels
+		for i in range(map.size()):
+			if bytes[i] == 1:
+				continue
+			
+			#Convert to air
+			var prism = map[i]
+			if prism.air_probability > settings.ground_to_air_ratio and prism.grid_position_xyz.y > 0:
+				prism.type = VoxelData.voxel_type.AIR
+				remove += 1
+				bytes[i] = 1
+				continue
+
+			# Flatten buffer
+			if prism.buffer and settings.flat_buffer:
+				if prism.grid_position_xyz.y > 0:
+					prism.type = VoxelData.voxel_type.AIR
+					remove += 1
+					bytes[i] = 1
+					continue
+	
+			# Ensure no overhang
+			var neighbor_pos : Vector3i = prism.grid_position_xyz
+			if settings.remove_overhang:
+				neighbor_pos.y -= 1
+				if neighbor_pos.y < 1:
+					continue
+				if air_at_pos(neighbor_pos):
+					prism.type = VoxelData.voxel_type.AIR
+					remove += 1
+					bytes[i] = 1
+					continue
+	
+			# Ensure terrace
+			if settings.terrace_steps < 1:
+				continue
+			var table = VoxelData.get_tile_neighbor_table(prism.grid_position_xz.x)
+			for dir in table:
+				neighbor_pos = Vector3i(prism.grid_position_xyz.x + dir.x,
+										prism.grid_position_xyz.y - settings.terrace_steps,
+										prism.grid_position_xyz.z + dir.y)
+				if air_at_pos(neighbor_pos):
+					prism.type = VoxelData.voxel_type.AIR
+					remove += 1
+					bytes[i] = 1
+					break
+		
+		if remove < 1 or passes > 50:
+			break
+		passes += 1
+		total += remove
+		remove = 0  # Reset remove counter for next pass
+		
+	return Vector2i(passes, total)
+
+
+func draw_face_towards(neighbor_pos : Vector3i) -> bool:
+	var neighbor = map_dict.get(neighbor_pos)
+	if neighbor:
+		if neighbor.type == VoxelData.voxel_type.AIR:
+			return true
+		else:
+			return false
+	return true
+
+
+func air_at_pos(pos) -> bool:
+	var neighbor : Voxel = map_dict.get(pos)
+	if neighbor and neighbor.type == VoxelData.voxel_type.AIR:
+		return true
+	return false
+
+
+# Returns verts indices and uvs for a voxel
+func build_hex_prism(voxel: Voxel) -> Dictionary:
+	var verts = PackedVector3Array()
+	var uvs   = PackedVector2Array()
+	var indices = PackedInt32Array()
+	if voxel.type == VoxelData.voxel_type.AIR:
+		return {"verts": verts, "uvs": uvs, "indices": indices}
+
+	var top_start = verts.size()
+	var size = settings.voxel_size
+	var height = settings.voxel_height
+	var pos = voxel.world_position
+	var top_offset = Vector3(0, height, 0)
+	var tile = VoxelData.tile_map.get(voxel.type, Vector2i(0, 0))
+	var dirs = VoxelData.get_tile_neighbor_table(voxel.grid_position_xyz.x)
+	var neighbor : Vector3i
+	
+	## TOP!
+	neighbor = voxel.grid_position_xyz
+	neighbor.y += 1
+	if draw_face_towards(neighbor):
+		top_voxels.append(voxel)
+		for i in range(sides):
+			var angle = TAU * float(i) / float(sides)
+			var x = cos(angle) * size
+			var z = sin(angle) * size
+			verts.append(pos + Vector3(x, height, z))
+			# map inside [0,1] as circle
+			uvs.append(atlas_uv(Vector2(0.5 + cos(angle)*0.5, 0.5 + sin(angle)*0.5), tile))
+		# center vertex
+		verts.append(pos + top_offset)
+		uvs.append(atlas_uv(Vector2(0.5, 0.5), tile))
+		# top triangles
+		for i in range(sides):
+			indices.append(top_start + i)
+			indices.append(top_start + ((i + 1) % sides))
+			indices.append(top_start + sides)  # center
+	
+	## BOTTOM
+	neighbor = voxel.grid_position_xyz
+	neighbor.y -= 1
+	if draw_face_towards(neighbor) and settings.draw_bottom:
+		var bottom_start = verts.size()
+		for i in range(sides):
+			var angle = TAU * float(i) / float(sides)
+			var x = cos(angle) * size
+			var z = sin(angle) * size
+			verts.append(pos + Vector3(x, 0, z))
+			uvs.append(atlas_uv(Vector2(0.5 + cos(angle)*0.5, 0.5 + sin(angle)*0.5), tile))
+		verts.append(pos) # center
+		uvs.append(atlas_uv(Vector2(0.5,0.5), tile))
+		# triangles (note: winding reversed so normal faces down)
+		for i in range(sides):
+			indices.append(bottom_start + sides)  # center
+			indices.append(bottom_start + ((i + 1) % sides))
+			indices.append(bottom_start + i)
+
+	# --- Side quads (each with 4 unique verts) ---
+	for i in range(sides):
+		neighbor = Vector3i(voxel.grid_position_xyz.x + dirs[i].x,
+							voxel.grid_position_xyz.y,
+							voxel.grid_position_xyz.z + dirs[i].y)
+		if not draw_face_towards(neighbor):
+			continue  # skip this side entirely
+			
+		# use base_vertices to ensure correct ordering
+		var bv0 = base_vertices[i]   * size
+		var bv1 = base_vertices[(i + 1) % sides] * size
+
+		var p0 = Vector3(bv0.x, 0.0, bv0.z) + pos
+		var p1 = Vector3(bv1.x, 0.0, bv1.z) + pos
+		var p2 = p0 + top_offset
+		var p3 = p1 + top_offset
+
+		var side_start = verts.size()
+		verts.append(p0); uvs.append(atlas_uv(Vector2(0,0), tile))
+		verts.append(p1); uvs.append(atlas_uv(Vector2(1,0), tile))
+		verts.append(p2); uvs.append(atlas_uv(Vector2(0,1), tile))
+		verts.append(p3); uvs.append(atlas_uv(Vector2(1,1), tile))
+
+		indices.append(side_start + 0)
+		indices.append(side_start + 1)
+		indices.append(side_start + 2)
+		indices.append(side_start + 1)
+		indices.append(side_start + 3)
+		indices.append(side_start + 2)
+	
+	# Debug: check UV ranges
+	for u in uvs:
+		if u.x < 0 or u.x > 1 or u.y < 0 or u.y > 1:
+			push_warning("UV out of range: ", u, " for voxel type ", voxel.type)
+	#print("Voxel type: ", voxel.type, " → Tile: ", tile, " → Sample UVs: ", uvs.slice(0, 4))
+
+	return {
+		"verts": verts,
+		"uvs": uvs,
+		"indices": indices
+	}
+
+
+func atlas_uv(local_uv: Vector2, tile: Vector2i) -> Vector2:
+	# Pixel min/max in atlas
+	var pixel_min: Vector2i = TILE_MARGIN + tile * TILE_STRIDE
+	var pixel_max: Vector2i = pixel_min + TILE_SIZE
+
+	# Convert to float UVs
+	var uv_min: Vector2 = Vector2(pixel_min) / Vector2(ATLAS_RES.x, ATLAS_RES.y)
+	var uv_max: Vector2 = Vector2(pixel_max) / Vector2(ATLAS_RES.x, ATLAS_RES.y)
+
+	# Map local_uv [0..1] into uv_min..uv_max
+	var uv: Vector2 = uv_min + local_uv * (uv_max - uv_min)
+	#print("Final UV: ", uv)
+
+	return uv
