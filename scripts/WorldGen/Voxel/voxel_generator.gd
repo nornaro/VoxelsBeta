@@ -9,7 +9,7 @@ var top_voxels : Array[Voxel]
 const ATLAS_RES   = Vector2i(512, 512)	# full atlas resolution in pixels
 const TILE_SIZE   = Vector2i(16, 16)	# usable area of one tile
 const TILE_STRIDE = Vector2i(18, 18)	# includes padding
-const TILE_MARGIN = Vector2i(4, 4)		# margin before first tile
+const TILE_MARGIN = Vector2i(5, 5)		# margin before first tile, always +1 of the actual padded border
 
 
 # Define base hexagon
@@ -80,7 +80,21 @@ func determine_voxel_type(voxel: Voxel):
 
 	var enum_index = int(floor(norm * float(tiles)))
 	if enum_index == 0: # turn air into something else
-		enum_index = randi_range(1, VoxelData.tile_map.size()-1)
+		enum_index = 3
+		#enum_index = randi_range(1, VoxelData.tile_map.size())
+	
+	#Test for top-sensetive tiles like grass
+	var tile = enum_index as VoxelData.voxel_type
+	var neighbor_above: Vector3i = voxel.grid_position_xyz + Vector3i(0,1,0)
+	var neighbor: Voxel = map_dict.get(neighbor_above)
+	if neighbor:
+		if neighbor.type != VoxelData.voxel_type.AIR: # if we are NOT a top layer voxel
+			if tile == VoxelData.voxel_type.GRASS: # if trying to create grass
+				enum_index = 2 #reassign to DIRT
+		else: # we ARE a top layer
+			if tile == VoxelData.voxel_type.DIRT: # if trying to create grass
+				enum_index = 1 #reassign to GRASS
+	
 	voxel.type = enum_index as VoxelData.voxel_type
 
 
@@ -200,7 +214,9 @@ func build_hex_prism(voxel: Voxel) -> Dictionary:
 	var height = settings.voxel_height
 	var pos = voxel.world_position
 	var top_offset = Vector3(0, height, 0)
-	var tile = VoxelData.tile_map.get(voxel.type, Vector2i(0, 0))
+	var tiles = VoxelData.tile_map.get(voxel.type)
+	var top_tile = tiles["top"]
+	var side_tile = tiles["side"]
 	var dirs = VoxelData.get_tile_neighbor_table(voxel.grid_position_xyz.x)
 	var neighbor : Vector3i
 	
@@ -215,10 +231,10 @@ func build_hex_prism(voxel: Voxel) -> Dictionary:
 			var z = sin(angle) * size
 			verts.append(pos + Vector3(x, height, z))
 			# map inside [0,1] as circle
-			uvs.append(atlas_uv(Vector2(0.5 + cos(angle)*0.5, 0.5 + sin(angle)*0.5), tile))
+			uvs.append(atlas_uv(Vector2(0.5 + cos(angle)*0.5, 0.5 + sin(angle)*0.5), top_tile))
 		# center vertex
 		verts.append(pos + top_offset)
-		uvs.append(atlas_uv(Vector2(0.5, 0.5), tile))
+		uvs.append(atlas_uv(Vector2(0.5, 0.5), top_tile))
 		# top triangles
 		for i in range(sides):
 			indices.append(top_start + i)
@@ -235,9 +251,9 @@ func build_hex_prism(voxel: Voxel) -> Dictionary:
 			var x = cos(angle) * size
 			var z = sin(angle) * size
 			verts.append(pos + Vector3(x, 0, z))
-			uvs.append(atlas_uv(Vector2(0.5 + cos(angle)*0.5, 0.5 + sin(angle)*0.5), tile))
+			uvs.append(atlas_uv(Vector2(0.5 + cos(angle)*0.5, 0.5 + sin(angle)*0.5), top_tile))
 		verts.append(pos) # center
-		uvs.append(atlas_uv(Vector2(0.5,0.5), tile))
+		uvs.append(atlas_uv(Vector2(0.5,0.5), top_tile))
 		# triangles (note: winding reversed so normal faces down)
 		for i in range(sides):
 			indices.append(bottom_start + sides)  # center
@@ -262,10 +278,10 @@ func build_hex_prism(voxel: Voxel) -> Dictionary:
 		var p3 = p1 + top_offset
 
 		var side_start = verts.size()
-		verts.append(p0); uvs.append(atlas_uv(Vector2(0,0), tile))
-		verts.append(p1); uvs.append(atlas_uv(Vector2(1,0), tile))
-		verts.append(p2); uvs.append(atlas_uv(Vector2(0,1), tile))
-		verts.append(p3); uvs.append(atlas_uv(Vector2(1,1), tile))
+		verts.append(p0); uvs.append(atlas_uv(Vector2(0,0), side_tile))
+		verts.append(p1); uvs.append(atlas_uv(Vector2(1,0), side_tile))
+		verts.append(p2); uvs.append(atlas_uv(Vector2(0,1), side_tile))
+		verts.append(p3); uvs.append(atlas_uv(Vector2(1,1), side_tile))
 
 		indices.append(side_start + 0)
 		indices.append(side_start + 1)
@@ -288,16 +304,13 @@ func build_hex_prism(voxel: Voxel) -> Dictionary:
 
 
 func atlas_uv(local_uv: Vector2, tile: Vector2i) -> Vector2:
-	# Pixel min/max in atlas
+	# Pixel bounds of usable tile
 	var pixel_min: Vector2i = TILE_MARGIN + tile * TILE_STRIDE
 	var pixel_max: Vector2i = pixel_min + TILE_SIZE
-
-	# Convert to float UVs
-	var uv_min: Vector2 = Vector2(pixel_min) / Vector2(ATLAS_RES.x, ATLAS_RES.y)
-	var uv_max: Vector2 = Vector2(pixel_max) / Vector2(ATLAS_RES.x, ATLAS_RES.y)
-
-	# Map local_uv [0..1] into uv_min..uv_max
-	var uv: Vector2 = uv_min + local_uv * (uv_max - uv_min)
-	#print("Final UV: ", uv)
-
-	return uv
+	
+	# Convert to normalized [0..1] UVs
+	var uv_min: Vector2 = Vector2(pixel_min) / Vector2(ATLAS_RES)
+	var uv_max: Vector2 = Vector2(pixel_max) / Vector2(ATLAS_RES)
+	
+	# Map local_uv [0..1] into this rectangle
+	return uv_min + local_uv * (uv_max - uv_min)

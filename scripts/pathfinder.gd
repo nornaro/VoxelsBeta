@@ -45,7 +45,7 @@ func is_voxel_valid(coords : Vector2i, current_pos : Vector3i, step: int) -> boo
 		var diff = voxel.grid_position_xyz.y - current_pos.y
 		if abs(diff) > step:
 			return false
-		if voxel.occupier == null and voxel.type != VoxelData.voxel_type.WATER:
+		if voxel.occupier == null: #and voxel.type != VoxelData.voxel_type.WATER:
 			return true
 	return false
 

@@ -1,18 +1,29 @@
 extends Node
 
-enum voxel_type {AIR, GRASS, SAND, WATER, ICE, STONE, DEBUG, TEST, PINK, PINK2}
+enum voxel_type {AIR, GRASS, DIRT, STONE}
 
 # Convert voxel_type to position in our texture_atlas
-var tile_map = {
-	voxel_type.GRASS: Vector2i(0, 0),
-	voxel_type.SAND:  Vector2i(1, 0),
-	voxel_type.WATER: Vector2i(2, 0),
-	voxel_type.ICE:   Vector2i(3, 0),
-	voxel_type.STONE: Vector2i(4, 0),
-	voxel_type.DEBUG: Vector2i(5, 0),
-	voxel_type.TEST: Vector2i(6, 0),
-	voxel_type.PINK: Vector2i(0, 1),
-	voxel_type.PINK2: Vector2i(1, 1)
+const tile_map = {
+	voxel_type.GRASS: {
+		"top": Vector2i(0, 0),
+		"side": Vector2i(1, 0)
+	},
+	voxel_type.DIRT: {
+		"top": Vector2i(2, 0),
+		"side": Vector2i(3, 0)
+	},
+	voxel_type.STONE: {
+		"top": Vector2i(4, 0),
+		"side": Vector2i(5, 0)
+	},
+	#voxel_type.WATER: {
+		#"top": Vector2i(6, 0),
+		#"side": Vector2i(6, 0) # water looks the same
+	#},
+	#voxel_type.ICE: {
+		#"top": Vector2i(7, 0),
+		#"side": Vector2i(7, 0)
+	#}
 }
 
 ## Shorthand for different layout/neighbor configurations depending on map-shape and stagger

@@ -46,7 +46,7 @@ func create_starting_units(count : int):
 	## Test pathfinder
 	while count > 0 and safety_count < 50:
 		var voxel : Voxel = WorldMap.top_layer_voxels.pick_random()
-		if voxel.type == VoxelData.voxel_type.WATER or voxel.occupier != null:
+		if voxel.occupier != null: #voxel.type == VoxelData.voxel_type.WATER or 
 			safety_count += 1
 			continue
 			
