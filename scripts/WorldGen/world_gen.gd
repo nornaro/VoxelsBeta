@@ -52,7 +52,7 @@ func create_starting_units(count : int):
 			
 		var unit : Unit = proto_unit.instantiate()
 		add_child(unit)
-		unit.place_unit(voxel.world_position, voxel.collider)
+		unit.place_unit(voxel)
 		count -= 1
 
 
@@ -142,7 +142,7 @@ func init_voxels(valid_voxels):
 				voxel.neighbors.append(WorldMap.map_as_dict[neighbor_pos])
 		
 		#Add and setup colliders
-		var c = V_COLLIDER.instantiate()
+		var c : StaticBody3D = V_COLLIDER.instantiate()
 		c.position = voxel.world_position
 		c.position.y += settings.voxel_height
 		add_child(c)

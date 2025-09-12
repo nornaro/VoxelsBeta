@@ -8,8 +8,8 @@ frequency = 0.08
 
 [resource]
 script = ExtResource("1_eiv65")
-radius = 24
-max_height = 12
+radius = 12
+max_height = 6
 terrace_steps = 0
 noise_height_bias = 0.33
 ground_to_air_ratio = 0.66

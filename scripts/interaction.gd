@@ -73,15 +73,15 @@ func attempt_select(hit : Node3D):
 		select_unit(hit.get_parent())
 
 
-func attempt_move_unit(hit):
-	if hit is not VoxelCollider:
+func attempt_move_unit(hit_collider):
+	if hit_collider is not VoxelCollider:
 		print("not a voxelcollider")
 		return
-	if not selected_unit or not unit_moves.has(hit.voxel):
+	if not selected_unit or not unit_moves.has(hit_collider.voxel):
 		print("Invalid Move Attempt")
 		return
-
-	selected_unit.place_unit(hit.position, hit)
+	var voxel: Voxel = hit_collider.voxel
+	selected_unit.place_unit(voxel)
 	deselect()
 
 

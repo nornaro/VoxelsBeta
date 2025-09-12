@@ -13,7 +13,7 @@ var current_health: int = 10
 @export var model: PackedScene
 
 var occupied_voxel : Voxel
-var team # which "team" does this unit belong to
+var team # which "team/faction" does this unit belong to
 
 
 func _ready() -> void:
@@ -21,11 +21,11 @@ func _ready() -> void:
 
 
 ## Put this unit on a tile at position
-func place_unit(new_position : Vector3, tile : VoxelCollider):
-	position = new_position
-	position.y += ground_offset
+func place_unit(voxel: Voxel):
+	position = voxel.world_position
+	position.y += WorldMap.world_settings.voxel_height
 	leave_tile()
-	occupy_tile(tile.voxel)
+	occupy_tile(voxel)
 
 
 func occupy_tile(tile : Voxel):
