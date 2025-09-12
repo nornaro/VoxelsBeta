@@ -11,7 +11,6 @@ const TILE_SIZE   = Vector2i(16, 16)	# usable area of one tile
 const TILE_STRIDE = Vector2i(18, 18)	# includes padding
 const TILE_MARGIN = Vector2i(5, 5)		# margin before first tile, always +1 of the actual padded border
 
-
 # Define base hexagon
 const base_vertices = [
 	Vector3(0.5, 0.0, -0.866),  # Left
@@ -80,10 +79,9 @@ func determine_voxel_type(voxel: Voxel):
 
 	var enum_index = int(floor(norm * float(tiles)))
 	if enum_index == 0: # turn air into something else
-		enum_index = 3
-		#enum_index = randi_range(1, VoxelData.tile_map.size())
+		enum_index = 3 # Stone, could also be randomized
 	
-	#Test for top-sensetive tiles like grass
+	#Test for top-sensitive tiles like grass
 	var tile = enum_index as VoxelData.voxel_type
 	var neighbor_above: Vector3i = voxel.grid_position_xyz + Vector3i(0,1,0)
 	var neighbor: Voxel = map_dict.get(neighbor_above)

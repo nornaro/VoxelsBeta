@@ -29,7 +29,7 @@ func _ready() -> void:
 		c.free()
 	object_placer.clear_objects()
 	call_deferred("generate_world")
-	call_deferred("create_starting_units", floori(settings.radius/2)) ## prototyping pathfinding and units
+	call_deferred("create_starting_units", floori(settings.radius*0.5)) ## prototyping pathfinding and units
 
 
 # Randomize if no seed has been set
