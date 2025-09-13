@@ -21,6 +21,7 @@ const base_vertices = [
 	Vector3(-0.5, 0.0, -0.866)  # Top-left
 	]
 
+
 func generate_chunk(_map : Array[Voxel], interval) -> Mesh:
 	map = _map
 	settings = WorldMap.world_settings
@@ -28,13 +29,12 @@ func generate_chunk(_map : Array[Voxel], interval) -> Mesh:
 	var indices = PackedInt32Array()
 	var uvs = PackedVector2Array()
 	
-	determine_air_voxels()
-	var shape_passes = shape_geometry()
-	print("Correction passes: ", shape_passes.x, ". Total voxels removed: ", shape_passes.y)
-	interval["Shaping -- "] = Time.get_ticks_msec()
-	print("vg settings noise caps..", settings.noise_caps)
+	var process_vector = process_voxels()
+	print("Correction passes: ", process_vector.x, ". Total voxels removed: ", process_vector.y)
+	interval["Processing Voxels total -- "] = Time.get_ticks_msec()
+	
 	for voxel in map:
-		determine_voxel_type(voxel)
+		assign_type(voxel)
 		var prism = build_hex_prism(voxel)
 		var v_offset = verts.size() # start at last indice to not overwrite old ones
 		verts.append_array(prism.verts)
@@ -64,20 +64,91 @@ func generate_chunk(_map : Array[Voxel], interval) -> Mesh:
 	return surface.commit()
 
 
-func determine_voxel_type(voxel: Voxel):
+func process_voxels() -> Vector2i:
+	# Prepare counters
+	var passes = 0
+	var total_removed = 0
+	
+	for voxel in map: # do this once
+		normalize_voxel_noise(voxel)
+		assign_air_probability(voxel)
+		map_dict[voxel.grid_position_xyz] = voxel
+	
+	while passes < 20:
+		var removed = 0
+		for i in range(map.size()):
+			var voxel = map[i]
+			if voxel.type != VoxelData.voxel_type.AIR:
+				if apply_shaping_rules(voxel):
+					removed += 1
+		if removed < 1:
+			break
+		total_removed += removed
+		passes += 1
+	
+	return Vector2i(passes, total_removed)
+
+
+func normalize_voxel_noise(voxel: Voxel):
+	# Normalize noise to [0,1] based on min/max
+	var n = voxel.noise
+	var min_n = WorldMap.noise_range.x
+	var max_n = WorldMap.noise_range.y
+	var normalized = clamp((n - min_n) / (max_n - min_n), 0.0, 0.9999)
+	voxel.noise = normalized
+
+
+func assign_air_probability(voxel: Voxel) -> void:
+	var noise_contribution : float = voxel.noise
+	var y : float = voxel.grid_position_xyz.y
+	var normalized_height : float = clampf(y / settings.max_height, 0.0, 1.0)
+
+	var combined_probability : float = (1.0 - settings.noise_height_bias) * noise_contribution \
+									 + settings.noise_height_bias * normalized_height
+	voxel.air_probability = clampf(combined_probability, 0.0, 1.0)
+
+
+func apply_shaping_rules(prism) -> bool:
+	# Convert to air
+	if prism.air_probability > settings.ground_to_air_ratio and prism.grid_position_xyz.y > 0:
+		prism.type = VoxelData.voxel_type.AIR
+		return true
+	
+	# Flatten buffer
+	if prism.buffer and settings.flat_buffer and prism.grid_position_xyz.y > 0:
+		prism.type = VoxelData.voxel_type.AIR
+		return true
+	
+	# Remove overhang
+	if settings.remove_overhang:
+		var below = prism.grid_position_xyz
+		below.y -= 1
+		if below.y >= 1 and air_at_pos(below):
+			prism.type = VoxelData.voxel_type.AIR
+			return true
+	
+	# Terrace shaping
+	if settings.terrace_steps >= 1:
+		var table = VoxelData.get_tile_neighbor_table(prism.grid_position_xz.x)
+		for dir in table:
+			var neighbor_pos = Vector3i(prism.grid_position_xyz.x + dir.x,
+										prism.grid_position_xyz.y - settings.terrace_steps,
+										prism.grid_position_xyz.z + dir.y)
+			if air_at_pos(neighbor_pos):
+				prism.type = VoxelData.voxel_type.AIR
+				return true
+	
+	return false
+
+
+func assign_type(voxel: Voxel):
 	if voxel.type == VoxelData.voxel_type.AIR:
 		return
 
 	var tiles = VoxelData.tile_map.size()
 	var n = voxel.noise
 
-	# Normalize noise to [0,1] based on min/max
-	var min_n = settings.noise_caps.x
-	var max_n = settings.noise_caps.y
-	var norm = clamp((n - min_n) / (max_n - min_n), 0.0, 0.9999)
-	#print("n:", n, " min:", min_n, " max:", max_n, " norm:", norm)
-
-	var enum_index = int(floor(norm * float(tiles)))
+	var enum_index = int(floor(n * float(tiles)))
 	if enum_index == 0: # turn air into something else
 		enum_index = 3 # Stone, could also be randomized
 	
@@ -94,92 +165,6 @@ func determine_voxel_type(voxel: Voxel):
 				enum_index = 1 #reassign to GRASS
 	
 	voxel.type = enum_index as VoxelData.voxel_type
-
-
-func determine_air_voxels():
-	# Find min and max noise
-	var min_noise = 999999
-	var max_noise = -999999
-	for i in range(map.size()):
-		var voxel = map[i]
-		if voxel.noise < min_noise:
-			min_noise = voxel.noise
-		elif voxel.noise >= max_noise:
-			max_noise = voxel.noise
-
-	# calculate probabilities, take noise and height into account
-	for voxel in map:
-		var noise_contribution : float = (voxel.noise - min_noise) / (max_noise - min_noise) 
-		var y : float = voxel.grid_position_xyz.y
-		var normalized_height : float = clampf(y / settings.max_height, 0.0, 1.0)
-		var combined_probability : float = (1.0 - settings.noise_height_bias) * noise_contribution + settings.noise_height_bias * normalized_height
-		voxel.air_probability = clampf(combined_probability, 0.0, 1.0)
-		map_dict[voxel.grid_position_xyz] = voxel
-
-
-func shape_geometry() -> Vector2i:
-	var passes = 0
-	var remove = 0
-	var total = 0
-	var bytes : PackedByteArray
-	bytes.resize(map.size())
-	bytes.fill(0) #0 is solid, 1 is air
-	
-	while true:
-		# Adjust all solid voxels
-		for i in range(map.size()):
-			if bytes[i] == 1:
-				continue
-			
-			#Convert to air
-			var prism = map[i]
-			if prism.air_probability > settings.ground_to_air_ratio and prism.grid_position_xyz.y > 0:
-				prism.type = VoxelData.voxel_type.AIR
-				remove += 1
-				bytes[i] = 1
-				continue
-
-			# Flatten buffer
-			if prism.buffer and settings.flat_buffer:
-				if prism.grid_position_xyz.y > 0:
-					prism.type = VoxelData.voxel_type.AIR
-					remove += 1
-					bytes[i] = 1
-					continue
-	
-			# Ensure no overhang
-			var neighbor_pos : Vector3i = prism.grid_position_xyz
-			if settings.remove_overhang:
-				neighbor_pos.y -= 1
-				if neighbor_pos.y < 1:
-					continue
-				if air_at_pos(neighbor_pos):
-					prism.type = VoxelData.voxel_type.AIR
-					remove += 1
-					bytes[i] = 1
-					continue
-	
-			# Ensure terrace
-			if settings.terrace_steps < 1:
-				continue
-			var table = VoxelData.get_tile_neighbor_table(prism.grid_position_xz.x)
-			for dir in table:
-				neighbor_pos = Vector3i(prism.grid_position_xyz.x + dir.x,
-										prism.grid_position_xyz.y - settings.terrace_steps,
-										prism.grid_position_xyz.z + dir.y)
-				if air_at_pos(neighbor_pos):
-					prism.type = VoxelData.voxel_type.AIR
-					remove += 1
-					bytes[i] = 1
-					break
-		
-		if remove < 1 or passes > 50:
-			break
-		passes += 1
-		total += remove
-		remove = 0  # Reset remove counter for next pass
-		
-	return Vector2i(passes, total)
 
 
 func draw_face_towards(neighbor_pos : Vector3i) -> bool:
