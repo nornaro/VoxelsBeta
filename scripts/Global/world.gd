@@ -5,7 +5,7 @@ var map_as_dict : Dictionary[Vector2i, Voxel] = {}
 var top_layer_voxels : Array[Voxel]
 var is_map_staggered = false
 var world_settings : GenerationSettings
-var noise_caps : Vector2
+var noise_range : Vector2
 
 #var neighbor_positions = HEXAGONAL_NEIGHBOR_DIRECTIONS
 

@@ -2,6 +2,7 @@ extends Object
 class_name GridMapper
 
 var settings : GenerationSettings
+var noise_range := Vector2(99999, -99999) 
 
 ## Main entry point, Get all positions to spawn tiles on
 func calculate_map_positions() -> Array[Voxel]:
@@ -26,8 +27,8 @@ func calculate_map_positions() -> Array[Voxel]:
 			voxels = generate_map(rectangle_bounds(), stagger, circular_buffer_filter, circle_shape_filter)
 
 	print("Created ", voxels.size(), " positions")
-	settings.noise_caps = find_noise_caps(voxels)
-	print("Noise Caps generated to: ", settings.noise_caps)
+	print("Noise Range: ", noise_range)
+	WorldMap.noise_range = noise_range
 	WorldMap.is_map_staggered = stagger
 	return voxels
 
@@ -75,20 +76,17 @@ func tile_to_world(pos, stagger: bool) -> Vector3:
 	return Vector3(x * settings.voxel_size, pos.y * settings.voxel_height, z * settings.voxel_size)
 
 
-## Get noise at position of tile
+# Get noise at position of tile
 func noise_at_tile(pos : Vector3, texture : FastNoiseLite) -> float:
 	var value : float = texture.get_noise_3dv(pos)
-	return (value + 1) / 2 # normalize [0, 1]
-
-
-func find_noise_caps(positions) -> Vector2:
-	var min_max_noise = Vector2(999999.0, -999999.0)
-	for pos in positions:
-		if pos.noise < min_max_noise.x:
-			min_max_noise.x = pos.noise
-		if pos.noise > min_max_noise.y:
-			min_max_noise.y = pos.noise
-	return min_max_noise
+	var normalized_value = (value + 1.0) * 0.5
+	
+	if normalized_value < noise_range.x:
+		noise_range.x = normalized_value
+	elif normalized_value > noise_range.y:
+		noise_range.y = normalized_value
+		
+	return normalized_value
 
 
 ### Bounds

@@ -15,7 +15,6 @@ enum shape {HEXAGONAL, RECTANGULAR, DIAMOND, CIRCLE}
 @export var flat_buffer = true
 @export var debug : bool = false
 @export var noise : FastNoiseLite
-var noise_caps : Vector2
 
 @export_category("Voxel")
 @export_range(0.1, 5) var voxel_size : float = 1 # Size scalar
