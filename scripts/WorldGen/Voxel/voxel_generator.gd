@@ -79,7 +79,7 @@ func process_voxels() -> Vector2i:
 		for i in range(map.size()):
 			var voxel = map[i]
 			if voxel.type != VoxelData.voxel_type.AIR:
-				if apply_shaping_rules(voxel):
+				if shape_geometry(voxel):
 					removed += 1
 		if removed < 1:
 			break
@@ -108,7 +108,7 @@ func assign_air_probability(voxel: Voxel) -> void:
 	voxel.air_probability = clampf(combined_probability, 0.0, 1.0)
 
 
-func apply_shaping_rules(prism) -> bool:
+func shape_geometry(prism) -> bool:
 	# Convert to air
 	if prism.air_probability > settings.ground_to_air_ratio and prism.grid_position_xyz.y > 0:
 		prism.type = VoxelData.voxel_type.AIR
@@ -243,7 +243,7 @@ func build_hex_prism(voxel: Voxel) -> Dictionary:
 			indices.append(bottom_start + ((i + 1) % sides))
 			indices.append(bottom_start + i)
 
-	# --- Side quads (each with 4 unique verts) ---
+	# Sides
 	for i in range(sides):
 		neighbor = Vector3i(voxel.grid_position_xyz.x + dirs[i].x,
 							voxel.grid_position_xyz.y,
@@ -251,7 +251,7 @@ func build_hex_prism(voxel: Voxel) -> Dictionary:
 		if not draw_face_towards(neighbor):
 			continue  # skip this side entirely
 			
-		# use base_vertices to ensure correct ordering
+		# base_vertices ensure correct ordering
 		var bv0 = base_vertices[i]   * size
 		var bv1 = base_vertices[(i + 1) % sides] * size
 
