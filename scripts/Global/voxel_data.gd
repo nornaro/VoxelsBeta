@@ -15,15 +15,7 @@ const tile_map = {
 	voxel_type.STONE: {
 		"top": Vector2i(4, 0),
 		"side": Vector2i(5, 0)
-	},
-	#voxel_type.WATER: {
-		#"top": Vector2i(6, 0),
-		#"side": Vector2i(6, 0) # water looks the same
-	#},
-	#voxel_type.ICE: {
-		#"top": Vector2i(7, 0),
-		#"side": Vector2i(7, 0)
-	#}
+	}
 }
 
 ## Shorthand for different layout/neighbor configurations depending on map-shape and stagger

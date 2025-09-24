@@ -20,16 +20,16 @@ func place_villages(tiles : Array[Voxel], spacing : int):
 		
 		# check against previous villages
 		for previous : Vector2 in placed_positions:
-			var c_diff = abs(previous.x - candidate.pos_data.grid_position.x)
-			var r_diff = abs(previous.y - candidate.pos_data.grid_position.y)
-			var delta = abs((previous.x + previous.y) - (candidate.pos_data.grid_position.x + candidate.pos_data.grid_position.y))
+			var c_diff = abs(previous.x - candidate.grid_position_xyz.x)
+			var r_diff = abs(previous.y - candidate.grid_position_xyz.y)
+			var delta = abs((previous.x + previous.y) - (candidate.grid_position_xyz.x + candidate.grid_position_xyz.y))
 			var ring_distance = max(c_diff, r_diff, delta)
 			if ring_distance <= spacing:
 				valid = false
 				break
 				
 		if valid:
-			placed_positions.append(Vector2(candidate.pos_data.grid_position.x, candidate.pos_data.grid_position.y))
+			placed_positions.append(Vector2(candidate.grid_position_xyz.x, candidate.grid_position_xyz.y))
 			spawn_on_tile(candidate, village)
 			for n in candidate.neighbors:
 				n.placeable = false
@@ -37,17 +37,17 @@ func place_villages(tiles : Array[Voxel], spacing : int):
 
 
 # Spawn an object on a tile
-func spawn_on_tile(tile : Voxel, scene : PackedScene):
-	if not tile or not scene:
+func spawn_on_tile(voxel : Voxel, scene : PackedScene):
+	if not voxel or not scene:
 		push_warning("tile not found!")
 		return
 
 	var instance = scene.instantiate()
 	add_child(instance)
-	call_deferred("position_object", instance, tile.global_position)
+	call_deferred("position_object", instance, voxel.world_position, 1)
 
 
-func position_object(object : Node3D, target_location : Vector3, add_height : float):
+func position_object(object : Node3D, target_location : Vector3, add_height : float = 0):
 	object.position = target_location
 	object.position.y += add_height
 
