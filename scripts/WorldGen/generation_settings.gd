@@ -20,7 +20,7 @@ enum shape {HEXAGONAL, RECTANGULAR, DIAMOND, CIRCLE}
 @export_range(0.1, 5) var voxel_size : float = 1 # Size scalar
 @export_range(0.1, 5) var voxel_height : float = 1 #height of voxels
 ## -1 For flat-shading. 0 for smooth
-@export_range(-1, 0) var shading : int = -1
+@export_range(-1, 0, 1.0) var shading : int = -1
 @export var material : Material
 @export var draw_bottom = false
 
