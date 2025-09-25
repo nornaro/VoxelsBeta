@@ -150,19 +150,20 @@ func assign_type(voxel: Voxel):
 
 	var enum_index = int(floor(n * float(tiles)))
 	if enum_index == 0: # turn air into something else
-		enum_index = 3 # Stone, could also be randomized
+		enum_index = 4 # Sand, could also be randomized
 	
-	#Test for top-sensitive tiles like grass
-	var tile = enum_index as VoxelData.voxel_type
+	# surface replacement
 	var neighbor_above: Vector3i = voxel.grid_position_xyz + Vector3i(0,1,0)
 	var neighbor: Voxel = map_dict.get(neighbor_above)
-	if neighbor:
-		if neighbor.type != VoxelData.voxel_type.AIR: # if we are NOT a top layer voxel
-			if tile == VoxelData.voxel_type.GRASS: # if trying to create grass
-				enum_index = 2 #reassign to DIRT
-		else: # we ARE a top layer
-			if tile == VoxelData.voxel_type.DIRT: # if trying to create grass
-				enum_index = 1 #reassign to GRASS
+	var tile_dict : Dictionary = VoxelData.tile_map.get(enum_index as VoxelData.voxel_type)
+	if tile_dict.has("surface"):
+		if neighbor:
+			if neighbor.type == VoxelData.voxel_type.AIR:
+				enum_index = tile_dict["surface"]
+	if tile_dict.has("underground"):
+		if neighbor:
+			if neighbor.type != VoxelData.voxel_type.AIR:
+				enum_index = tile_dict["underground"]
 	
 	voxel.type = enum_index as VoxelData.voxel_type
 
@@ -197,9 +198,10 @@ func build_hex_prism(voxel: Voxel) -> Dictionary:
 	var height = settings.voxel_height
 	var pos = voxel.world_position
 	var top_offset = Vector3(0, height, 0)
-	var tiles = VoxelData.tile_map.get(voxel.type)
+	var tiles : Dictionary = VoxelData.tile_map.get(voxel.type)
 	var top_tile = tiles["top"]
 	var side_tile = tiles["side"]
+	var bottom_tile = tiles.get("bottom", top_tile)
 	var dirs = VoxelData.get_tile_neighbor_table(voxel.grid_position_xyz.x)
 	var neighbor : Vector3i
 	
@@ -234,9 +236,9 @@ func build_hex_prism(voxel: Voxel) -> Dictionary:
 			var x = cos(angle) * size
 			var z = sin(angle) * size
 			verts.append(pos + Vector3(x, 0, z))
-			uvs.append(atlas_uv(Vector2(0.5 + cos(angle)*0.5, 0.5 + sin(angle)*0.5), top_tile))
+			uvs.append(atlas_uv(Vector2(0.5 + cos(angle)*0.5, 0.5 + sin(angle)*0.5), bottom_tile))
 		verts.append(pos) # center
-		uvs.append(atlas_uv(Vector2(0.5,0.5), top_tile))
+		uvs.append(atlas_uv(Vector2(0.5,0.5), bottom_tile))
 		# triangles (note: winding reversed so normal faces down)
 		for i in range(sides):
 			indices.append(bottom_start + sides)  # center

@@ -1,20 +1,28 @@
 extends Node
 
-enum voxel_type {AIR, GRASS, DIRT, STONE}
+enum voxel_type {AIR, GRASS, DIRT, STONE, SAND}
 
-# Convert voxel_type to position in our texture_atlas
+# Convert voxel_type to position in our texture_atlas, bottom is optional
 const tile_map = {
 	voxel_type.GRASS: {
 		"top": Vector2i(0, 0),
-		"side": Vector2i(1, 0)
+		"side": Vector2i(1, 0),
+		"bottom": Vector2i(2, 0),
+		"underground": voxel_type.DIRT
 	},
 	voxel_type.DIRT: {
 		"top": Vector2i(2, 0),
-		"side": Vector2i(3, 0)
+		"side": Vector2i(3, 0),
+		"surface": voxel_type.GRASS
 	},
 	voxel_type.STONE: {
 		"top": Vector2i(4, 0),
 		"side": Vector2i(5, 0)
+	},
+	voxel_type.SAND: {
+		"top": Vector2i(6, 0),
+		"side": Vector2i(7, 0),
+		"bottom": Vector2i(8, 0)
 	}
 }
 
@@ -36,7 +44,7 @@ const NEIGHBOR_DIRECTIONS_EVEN: Array[Vector2i] = [ # For even rows (x % 2 == 0)
 	Vector2i(-1, -1), # Northwest 
 	Vector2i(0, -1) # West 
 	] 
-	
+
 const NEIGHBOR_DIRECTIONS_ODD: Array[Vector2i] = [ # For odd rows (x % 2 == 1) 
 	Vector2i(1, 0), # Northeast 
 	Vector2i(1, 1), # East 
@@ -45,7 +53,8 @@ const NEIGHBOR_DIRECTIONS_ODD: Array[Vector2i] = [ # For odd rows (x % 2 == 1)
 	Vector2i(-1, 0), # Northwest 
 	Vector2i(0, -1) # West 
 	]
-	
+
+
 func get_tile_neighbor_table(row) -> Array[Vector2i]:
 	if WorldMap.is_map_staggered:
 		if row % 2 == 0:
