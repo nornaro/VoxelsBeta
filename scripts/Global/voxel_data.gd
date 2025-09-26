@@ -1,9 +1,13 @@
 extends Node
 
-enum voxel_type {AIR, GRASS, DIRT, STONE, SAND}
+enum voxel_type {AIR, BEDROCK, GRASS, DIRT, STONE, SAND}
 
 # Convert voxel_type to position in our texture_atlas, bottom is optional
 const tile_map = {
+	voxel_type.BEDROCK: {
+		"top": Vector2(0, 1),
+		"side": Vector2(0, 1)
+	},
 	voxel_type.GRASS: {
 		"top": Vector2i(0, 0),
 		"side": Vector2i(1, 0),
