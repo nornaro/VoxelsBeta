@@ -23,6 +23,7 @@ enum shape {HEXAGONAL, RECTANGULAR, DIAMOND, CIRCLE}
 @export_range(-1, 0, 1.0) var shading : int = -1
 @export var material : Material
 @export var draw_bottom = false
+@export var solid_first_layer = true
 
 @export_category("Villages")
 @export var spawn_villages = true

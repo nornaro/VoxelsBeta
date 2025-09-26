@@ -109,13 +109,18 @@ func assign_air_probability(voxel: Voxel) -> void:
 
 
 func shape_geometry(prism) -> bool:
+	# Ensure solid first layer
+	if settings.solid_first_layer and prism.grid_position_xyz.y == 0:
+		prism.type = VoxelData.voxel_type.BEDROCK
+		return false
+	
 	# Convert to air
-	if prism.air_probability > settings.ground_to_air_ratio and prism.grid_position_xyz.y > 0:
+	if prism.air_probability > settings.ground_to_air_ratio:
 		prism.type = VoxelData.voxel_type.AIR
 		return true
 	
 	# Flatten buffer
-	if prism.buffer and settings.flat_buffer and prism.grid_position_xyz.y > 0:
+	if prism.buffer and settings.flat_buffer:
 		prism.type = VoxelData.voxel_type.AIR
 		return true
 	
@@ -142,7 +147,7 @@ func shape_geometry(prism) -> bool:
 
 
 func assign_type(voxel: Voxel):
-	if voxel.type == VoxelData.voxel_type.AIR:
+	if voxel.type == VoxelData.voxel_type.AIR or voxel.type == VoxelData.voxel_type.BEDROCK:
 		return
 
 	var tiles = VoxelData.tile_map.size()
@@ -150,7 +155,9 @@ func assign_type(voxel: Voxel):
 
 	var enum_index = int(floor(n * float(tiles)))
 	if enum_index == 0: # turn air into something else
-		enum_index = 4 # Sand, could also be randomized
+		enum_index = 5 # Sand, could also be randomized
+	elif enum_index == 1 and voxel.grid_position_xyz.y != 0: #turn bedrock into something else
+		enum_index = 5
 	
 	# surface replacement
 	var neighbor_above: Vector3i = voxel.grid_position_xyz + Vector3i(0,1,0)
