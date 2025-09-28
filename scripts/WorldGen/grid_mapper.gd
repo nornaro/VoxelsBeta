@@ -78,15 +78,15 @@ func tile_to_world(pos, stagger: bool) -> Vector3:
 
 # Get noise at position of tile
 func noise_at_tile(pos : Vector3, texture : FastNoiseLite) -> float:
-	var value : float = texture.get_noise_3dv(pos)
-	var normalized_value = (value + 1.0) * 0.5
+	var value : float = texture.get_noise_3dv(pos) + randf_range(-settings.variance, settings.variance) 
+	#var normalized_value = (value + 1.0) * 0.5
 	
-	if normalized_value < noise_range.x:
-		noise_range.x = normalized_value
-	elif normalized_value > noise_range.y:
-		noise_range.y = normalized_value
+	if value < noise_range.x:
+		noise_range.x = value
+	elif value > noise_range.y:
+		noise_range.y = value
 		
-	return normalized_value
+	return value
 
 
 ### Bounds
