@@ -15,6 +15,9 @@ func set_map(voxels):
 	for voxel : Voxel in voxels:
 		map_as_dict[Vector2i(voxel.grid_position_xz.x, voxel.grid_position_xz.y)] = voxel
 
+func clear_map():
+	map_as_dict.clear()
+	top_layer_voxels.clear()
 
 ## Handy function for finding all neigbors of a tile
 #func get_tile_neighbors(tile : Tile) -> Array[Tile]:
