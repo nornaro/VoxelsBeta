@@ -1,9 +1,15 @@
 extends Node3D
 
+enum mode {SELECT, BUILD}
+var interact_mode : mode = mode.SELECT
 @export var voxel_cursor_scene : PackedScene
 @export var unit_cursor_scene : PackedScene
 @export var main_camera : Camera3D
 @export var p_finder : Pathfinder
+@export var selection_indicator : TextureRect
+const BUILDSPRITE = preload("uid://cgpb4pbfvd0q3")
+const SELECTSPRITE = preload("uid://cctpnojcm20kn")
+
 var selected_voxel : Node3D
 var selected_unit : Unit
 var unit_moves : Array[Voxel]
@@ -25,10 +31,21 @@ func init():
 	var scalar = WorldMap.world_settings.voxel_size
 	voxel_cursor.scale_object_local(Vector3(scalar, 1.0, scalar))
 	deselect()
+	selection_indicator.texture = SELECTSPRITE
 	initialized = true
 
 
 func _input(event: InputEvent) -> void:
+	#mode select
+	if event is InputEventKey: 
+		if event.is_action("Build"):
+			interact_mode = mode.BUILD
+			selection_indicator.texture = BUILDSPRITE
+		elif event.is_action("Select"):
+			interact_mode = mode.SELECT
+			selection_indicator.texture = SELECTSPRITE
+		
+	# Setup raycast
 	if event is InputEventMouseButton and event.is_pressed():
 		var mouse_pos = get_viewport().get_mouse_position()
 		var origin = main_camera.project_ray_origin(mouse_pos)
@@ -37,8 +54,13 @@ func _input(event: InputEvent) -> void:
 		var hit_object = raycast_at_mouse(origin, end) #returns the collider
 		if not hit_object:
 			return
+		
+		#Click event
 		if Input.is_action_just_pressed("Click"):
-			attempt_select(hit_object)
+			if interact_mode == mode.SELECT:
+				attempt_select(hit_object)
+			elif interact_mode == mode.BUILD:
+				attempt_build(hit_object)
 		elif Input.is_action_just_pressed("RightClick"):
 			attempt_move_unit(hit_object)
 
@@ -52,6 +74,15 @@ func raycast_at_mouse(origin, end) -> Node3D:
 		else:
 			deselect()
 			return null
+
+
+func attempt_build(hit_object):
+	if hit_object.is_in_group("voxels"):
+		build_voxel(hit_object)
+
+
+func build_voxel(hit_object):
+	print(hit_object)
 
 
 func deselect():
