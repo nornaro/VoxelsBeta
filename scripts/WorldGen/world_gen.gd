@@ -12,9 +12,6 @@ extends Node
 @onready var label: RichTextLabel = $"../../Control/VBoxContainer/RichTextLabel"
 @export var loading_container: CenterContainer
 
-const COLLIDER_SCRIPT = preload("res://scripts/WorldGen/Voxel/voxel_collider.gd")
-const V_COLLIDER = preload("res://assets/Meshes/HexTileCollider.tscn")
-
 
 ## Starting point: Generate a random seed, create the tiles, place POI's
 func _ready() -> void:
@@ -47,21 +44,12 @@ func generate_world():
 	interval["Calculate Map Positions -- "] = Time.get_ticks_msec()
 
 	var vg = VoxelGenerator.new()
-	var chunk_mesh = vg.generate_chunk(voxels, interval)
-	var new_chunk = Chunk.new()
-	new_chunk.material_override = settings.material
-	new_chunk.mesh = chunk_mesh
-	new_chunk.voxels = voxels
+	var new_chunk = vg.generate_chunk(voxels, interval)
 	chunks.add_child(new_chunk)
+	new_chunk.init_chunk()
 	interval["Create Voxel Mesh -- "] = Time.get_ticks_msec()
-	
-	#if settings.debug:
-		#new_chunk.mesh.create_debug_tangents()
-		#interval["Debugging overhead -- "] = Time.get_ticks_msec()
-	
+
 	WorldMap.set_map(vg.top_voxels)
-	init_voxels(vg.top_voxels)
-	interval["Generate Colliders and neighbors -- "] = Time.get_ticks_msec()
 
 	## Spawn villages and units
 	if settings.spawn_villages_and_units:
@@ -71,7 +59,7 @@ func generate_world():
 		interval["Spawn Villages -- "] = Time.get_ticks_msec()
 	
 	print_generation_results(starttime, interval)
-	interaction_tracker.init()
+	#interaction_tracker.init()
 	loading_container.visible = false
 
 
@@ -86,10 +74,8 @@ func print_generation_results(start : float, dict : Dictionary):
 	for key in dict:
 		var val = dict[key]
 		if val == start:
-			#print(key)
 			continue
 		var passed = val - last_val
-		#print(key, str(passed) + "ms")
 		label.text += "[b]" + str(key) + "[/b]" + "[i]" + str(passed) + "ms\n" + "[/i]"
 		last_val = val
 		total += passed
@@ -111,25 +97,3 @@ func get_placeable_voxels() -> Array[Voxel]:
 		placeable_tiles.append(voxel)
 	print(str(placeable_tiles.size()) + " placeable tiles")
 	return placeable_tiles
-
-
-func init_voxels(valid_voxels):
-	for voxel : Voxel in valid_voxels:
-		# set neighbors
-		var table = VoxelData.get_tile_neighbor_table(voxel.grid_position_xyz.x)
-		for dir in table:
-			var neighbor_pos = Vector2i(voxel.grid_position_xz.x + dir.x, voxel.grid_position_xz.y + dir.y)
-			var neighbor = WorldMap.map_as_dict.get(neighbor_pos)
-			if neighbor:
-				voxel.neighbors.append(WorldMap.map_as_dict[neighbor_pos])
-		
-		#Add and setup colliders
-		var c : StaticBody3D = V_COLLIDER.instantiate()
-		c.position = voxel.world_position
-		c.position.y += settings.voxel_height
-		add_child(c)
-		c.scale_object_local(Vector3(settings.voxel_size, 1, settings.voxel_size))
-		c.set_script(COLLIDER_SCRIPT)
-		c.add_to_group("voxels")
-		c.voxel = voxel
-		voxel.collider = c

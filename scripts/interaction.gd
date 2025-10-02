@@ -96,7 +96,7 @@ func deselect():
 func attempt_select(hit : Node3D):
 	deselect()
 	if hit.is_in_group("voxels"):
-		highlight_voxel(hit)
+		#highlight_voxel(hit)
 		return
 	if hit.is_in_group("units"):
 		select_unit(hit)
@@ -105,9 +105,9 @@ func attempt_select(hit : Node3D):
 
 
 func attempt_move_unit(hit_collider):
-	if hit_collider is not VoxelCollider:
-		print("not a voxelcollider")
-		return
+	#if hit_collider is not VoxelCollider:
+		#print("not a voxelcollider")
+		#return
 	if not selected_unit or not unit_moves.has(hit_collider.voxel):
 		print("Invalid Move Attempt")
 		return
@@ -126,13 +126,13 @@ func select_unit(unit : Unit):
 		p_finder.highlight_voxel(unit_moves)
 
 
-func highlight_voxel(voxel_col : VoxelCollider):
-	selected_unit = null
-	selected_voxel = voxel_col
-	hide_cursor(unit_cursor)
-	move_cursor(voxel_cursor, voxel_col.global_position)
-	voxel_cursor.visible = true
-	animate_cursor(voxel_cursor)
+#func highlight_voxel(voxel_col : VoxelCollider):
+	#selected_unit = null
+	#selected_voxel = voxel_col
+	#hide_cursor(unit_cursor)
+	#move_cursor(voxel_cursor, voxel_col.global_position)
+	#voxel_cursor.visible = true
+	#animate_cursor(voxel_cursor)
 	#print(voxel.voxel.type) # voxel of the collider
 
 

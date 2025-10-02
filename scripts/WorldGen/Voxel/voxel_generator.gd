@@ -22,7 +22,7 @@ const base_vertices = [
 	]
 
 
-func generate_chunk(_map : Array[Voxel], interval) -> Mesh:
+func generate_chunk(_map : Array[Voxel], interval) -> Chunk:
 	map = _map
 	settings = WorldMap.world_settings
 	var verts = PackedVector3Array()
@@ -61,7 +61,17 @@ func generate_chunk(_map : Array[Voxel], interval) -> Mesh:
 	surface.generate_tangents()
 	WorldMap.top_layer_voxels.clear()
 	WorldMap.top_layer_voxels.append_array(top_voxels)
-	return surface.commit()
+	
+	return prepared_chunk(surface)
+
+
+func prepared_chunk(surface) -> Chunk:
+	var chunk = Chunk.new()
+	chunk.mesh = surface.commit()
+	chunk.voxels = map
+	chunk.voxels_dict = map_dict
+	chunk.material_override = settings.material
+	return chunk
 
 
 func process_voxels() -> Vector2i:
