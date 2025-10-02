@@ -59,7 +59,7 @@ func generate_world():
 		interval["Spawn Villages -- "] = Time.get_ticks_msec()
 	
 	print_generation_results(starttime, interval)
-	#interaction_tracker.init()
+	interaction_tracker.init()
 	loading_container.visible = false
 
 

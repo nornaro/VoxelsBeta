@@ -69,7 +69,7 @@ func prepared_chunk(surface) -> Chunk:
 	var chunk = Chunk.new()
 	chunk.mesh = surface.commit()
 	chunk.voxels = map
-	chunk.voxels_dict = map_dict
+	chunk.voxels_grid_dict = map_dict
 	chunk.material_override = settings.material
 	return chunk
 
