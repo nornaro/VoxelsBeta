@@ -66,14 +66,15 @@ func _input(event: InputEvent) -> void:
 			attempt_move_unit(hit_data.object)
 
 
-func raycast_at_mouse(origin, end) -> hit_data:
+func raycast_at_mouse(origin, end) -> HitData:
 		var query = PhysicsRayQueryParameters3D.create(origin, end)
 		var collision = get_world_3d().direct_space_state.intersect_ray(query)
 		if collision and collision.has("collider"):
 			var hit = collision.collider
-			var data = hit_data.new()
+			var data = HitData.new()
 			data.object = hit
 			data.point = collision.position
+			data.normal = collision.normal
 			return data
 		else:
 			deselect()
@@ -97,7 +98,7 @@ func deselect():
 	p_finder.clear_highlight()
 
 
-func attempt_select(hit): #hit is a hit_data
+func attempt_select(hit: HitData): #hit is a HitData
 	deselect()
 	if hit.object.is_in_group("voxels") or hit.object.get_parent().is_in_group("voxels"):
 		highlight_voxel(hit)
@@ -131,11 +132,11 @@ func select_unit(unit : Unit):
 
 
 # We have clicked somewhere on a chunk of voxels
-func highlight_voxel(hit): #hit is hit_data
+func highlight_voxel(hit: HitData): #hit is hit_data
 	selected_unit = null
 	hide_cursor(unit_cursor)
 	var hit_chunk : Chunk = hit.object.get_parent()
-	var hit_voxel : Voxel = hit_chunk.voxel_at_point(hit.point)
+	var hit_voxel : Voxel = hit_chunk.voxel_at_point(hit)
 	if hit_voxel == null:
 		print("Hit voxel is null!")
 		return
@@ -170,7 +171,3 @@ func hide_cursor(cursor : Node3D):
 	if cursor:
 		move_cursor(cursor, Vector3.ZERO, -10)
 		cursor.visible = false
-
-class hit_data:
-	var object: Node3D
-	var point: Vector3

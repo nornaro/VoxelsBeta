@@ -21,20 +21,18 @@ func fill_pos_dict():
 		voxels_pos_dict[v.world_position] = v
 
 
-# Slow process of looking through all voxels
-func voxel_at_point(point: Vector3) -> Voxel:
+# Slow process of looking through all voxels, very expensive for large maps!
+func voxel_at_point(hit: HitData) -> Voxel:
 	var closest_voxel: Voxel = null
 	var closest_dist := INF
 
 	for pos in voxels_pos_dict.keys():
-		var dist = point.distance_squared_to(pos) # squared is cheaper than distance
+		var dist = hit.point.distance_squared_to(pos) # squared is cheaper than distance
 		if dist < closest_dist:
 			closest_dist = dist
 			closest_voxel = voxels_pos_dict[pos]
 
 	if closest_voxel == null:
-		print("No voxel found near point: ", point, ". Scanned ", voxels_pos_dict.keys().size(), " keys")
-	else:
-		print("Closest voxel: ", closest_voxel, " at distance: ", sqrt(closest_dist))
+		print("No voxel found near point: ", hit.point, ". Scanned ", voxels_pos_dict.keys().size(), " keys")
 
 	return closest_voxel
