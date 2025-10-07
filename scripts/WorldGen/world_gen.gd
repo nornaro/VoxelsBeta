@@ -49,8 +49,6 @@ func generate_world():
 	new_chunk.init_chunk()
 	interval["Create Voxel Mesh -- "] = Time.get_ticks_msec()
 
-	WorldMap.set_map(vg.top_voxels)
-
 	## Spawn villages and units
 	if settings.spawn_villages_and_units:
 		var placeable = get_placeable_voxels()
