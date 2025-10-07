@@ -2,37 +2,47 @@ extends MeshInstance3D
 class_name Chunk
 
 var voxels : Array[Voxel]
-var voxels_grid_dict : Dictionary[Vector3i, Voxel]
-var voxels_pos_dict : Dictionary[Vector3, Voxel]
+var voxel_layers: Dictionary[int, Array] = {}
+
 
 func init_chunk():
-		var body = StaticBody3D.new()
-		var col = CollisionShape3D.new()
-		var shape = mesh.create_trimesh_shape()
-		col.shape = shape
-		add_child(body)
-		body.add_child(col)
-		add_to_group("voxels")
-		fill_pos_dict()
+	generate_collider()
+	add_to_group("voxels")
+	fill_pos_dict()
+
+
+func generate_collider():
+	var body = StaticBody3D.new()
+	var col = CollisionShape3D.new()
+	var shape = mesh.create_trimesh_shape()
+	col.shape = shape
+	add_child(body)
+	body.add_child(col)
 
 
 func fill_pos_dict():
-	for v : Voxel in voxels:
-		voxels_pos_dict[v.world_position] = v
+	for v: Voxel in voxels:
+		var y = v.grid_position_xyz.y
+		if not voxel_layers.has(y):
+			voxel_layers[y] = []
+			print("Voxel layer: ", y)
+		voxel_layers[y].append(v)
 
 
-# Slow process of looking through all voxels, very expensive for large maps!
-func voxel_at_point(hit: HitData) -> Voxel:
+# We cant just compare against where the user clicked since voxels can have various heights!
+# Sort through only the relevant y-level, still slow tho 
+func voxel_at_point(point: Vector3) -> Voxel:
+	var y = int(floor(point.y))
+	var layer = voxel_layers.get(y)
+	print("attempted select at: ", y)
+	if not layer:
+		layer = voxel_layers.get(y-1)
+	
 	var closest_voxel: Voxel = null
-	var closest_dist := INF
-
-	for pos in voxels_pos_dict.keys():
-		var dist = hit.point.distance_squared_to(pos) # squared is cheaper than distance
-		if dist < closest_dist:
-			closest_dist = dist
-			closest_voxel = voxels_pos_dict[pos]
-
-	if closest_voxel == null:
-		print("No voxel found near point: ", hit.point, ". Scanned ", voxels_pos_dict.keys().size(), " keys")
-
+	var min_dist = INF
+	for v in layer:
+		var dist = v.world_position.distance_to(point)
+		if dist < min_dist:
+			min_dist = dist
+			closest_voxel = v
 	return closest_voxel
