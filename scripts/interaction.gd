@@ -136,7 +136,7 @@ func highlight_voxel(hit: HitData): #hit is hit_data
 	selected_unit = null
 	hide_cursor(unit_cursor)
 	var hit_chunk : Chunk = hit.object.get_parent()
-	var hit_voxel : Voxel = hit_chunk.voxel_at_point(hit.point)
+	var hit_voxel : Voxel = hit_chunk.voxel_at_point(hit)
 	if hit_voxel == null:
 		print("Hit voxel is null!")
 		return
