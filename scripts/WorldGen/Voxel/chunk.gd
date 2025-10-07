@@ -3,7 +3,7 @@ class_name Chunk
 
 var voxels : Array[Voxel]
 var voxel_layers: Dictionary[int, Array] = {}
-
+var debug_cubes : Array = []
 
 func init_chunk():
 	generate_collider()
@@ -30,19 +30,70 @@ func fill_pos_dict():
 
 
 # We cant just compare against where the user clicked since voxels can have various heights!
-# Sort through only the relevant y-level, still slow tho 
-func voxel_at_point(point: Vector3) -> Voxel:
-	var y = int(floor(point.y))
-	var layer = voxel_layers.get(y)
-	print("attempted select at: ", y)
-	if not layer:
-		layer = voxel_layers.get(y-1)
+# perform greedy-first-search across the relevant layer for quick lookup.
+func voxel_at_point(hd: HitData) -> Voxel:
+	# Move "into" the surface hit point toward the voxel center
+	var corrected_pos: Vector3 = hd.point - hd.normal * (WorldMap.world_settings.voxel_height * 0.5)
 	
-	var closest_voxel: Voxel = null
-	var min_dist = INF
-	for v in layer:
-		var dist = v.world_position.distance_to(point)
-		if dist < min_dist:
-			min_dist = dist
-			closest_voxel = v
-	return closest_voxel
+	var y := int(floor(corrected_pos.y / WorldMap.world_settings.voxel_height))
+	var layer = voxel_layers.get(y)
+	#print("Attempted select at layer:", y, " | corrected_pos:", corrected_pos)
+
+	if not layer:
+		layer = voxel_layers.get(y - 1)
+	if not layer:
+		return null
+	
+	# Start from a random voxel (or pick first)
+	var current: Voxel = layer.pick_random()
+	var current_dist: float = current.world_position.distance_to(corrected_pos)
+	var visited: Array[Voxel]
+	
+	clear_neighbor_debug()
+	
+	while true:
+		var found_better := false
+		var neighbors: Array[Voxel] = WorldMap.get_tile_neighbors_planar(current)
+		#debug_draw_neighbors(current)
+		for n in neighbors:
+			if visited.has(n):
+				continue
+			var dist := n.world_position.distance_to(corrected_pos)
+			if dist < current_dist:
+				current = n
+				current_dist = dist
+				found_better = true
+		
+		visited.append(current)
+		
+		# stop when no closer neighbor exists
+		if not found_better:
+			break
+	
+	#print("Visited: ", visited.size(), " / ", layer.size())
+	return current
+
+
+func clear_neighbor_debug():
+	for c in debug_cubes:
+		c.queue_free()
+	debug_cubes.clear()
+
+
+func debug_draw_neighbors(voxel: Voxel):
+	var neighbors: Array[Voxel] = WorldMap.get_tile_neighbors_planar(voxel)
+	#print("Found ", neighbors.size(), " neighbors for voxel ", voxel.grid_position_xyz)
+	
+	for n in neighbors:
+		#print("Neighbor at: ", n.grid_position_xyz, " world: ", n.world_position)
+
+		# Create a small cube at the neighbor's world position for debugging
+		var cube = MeshInstance3D.new()
+		cube.mesh = BoxMesh.new()
+		cube.mesh.size = Vector3(0.2, 5, 0.2)  # small cube
+		cube.position = n.world_position
+		cube.material_override = StandardMaterial3D.new()
+		cube.material_override.albedo_color = Color(1, 0, 0)
+
+		get_tree().current_scene.add_child(cube)
+		debug_cubes.append(cube)
