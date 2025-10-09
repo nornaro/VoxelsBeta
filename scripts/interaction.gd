@@ -35,28 +35,27 @@ func init():
 	initialized = true
 
 
-func _input(event: InputEvent) -> void:
+func _process(_delta: float) -> void:
 	#mode select
-	if event is InputEventKey: 
-		if event.is_action("Build"):
-			interact_mode = mode.BUILD
-			selection_indicator.texture = BUILDSPRITE
-		elif event.is_action("Select"):
-			interact_mode = mode.SELECT
-			selection_indicator.texture = SELECTSPRITE
+
+	if Input.is_action_just_pressed("Build"):
+		interact_mode = mode.BUILD
+		selection_indicator.texture = BUILDSPRITE
+	elif Input.is_action_just_pressed("Select"):
+		interact_mode = mode.SELECT
+		selection_indicator.texture = SELECTSPRITE
 		
 	# Setup raycast
-	if event is InputEventMouseButton and event.is_pressed():
+	if Input.is_action_just_pressed("Click") or Input.is_action_just_pressed("RightClick"):
 		var mouse_pos = get_viewport().get_mouse_position()
 		var origin = main_camera.project_ray_origin(mouse_pos)
 		var dir = main_camera.project_ray_normal(mouse_pos)
 		var end = origin + dir * 1000
-		var hit_data = raycast_at_mouse(origin, end) #returns the collider
+		var hit_data = raycast_at_mouse(origin, end)
 		if not hit_data:
 			print("hit data is empty")
 			return
-		
-		#Click event
+
 		if Input.is_action_just_pressed("Click"):
 			if interact_mode == mode.SELECT:
 				attempt_select(hit_data)
