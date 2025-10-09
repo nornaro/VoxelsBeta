@@ -25,7 +25,7 @@ func fill_pos_dict():
 		var y = v.grid_position_xyz.y
 		if not voxel_layers.has(y):
 			voxel_layers[y] = []
-			print("Voxel layer: ", y)
+			#print("Voxel layer: ", y)
 		voxel_layers[y].append(v)
 
 
