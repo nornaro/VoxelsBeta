@@ -9,6 +9,7 @@ var noise : float = 0.0
 var buffer : bool = false
 var water : bool = false
 var air_probability : float = 0
+var surface_voxel := false
 
 var neighbors = []
 var placeable = true

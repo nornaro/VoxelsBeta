@@ -4,7 +4,7 @@ var map : Array[Voxel]
 var map_dict : Dictionary[Vector3i, Voxel]
 const sides = 6
 var settings : GenerationSettings
-var top_voxels : Array[Voxel]
+var surface_voxels : Array[Voxel]
 
 const ATLAS_RES   = Vector2i(512, 512)	# full atlas resolution in pixels
 const TILE_SIZE   = Vector2i(16, 16)	# usable area of one tile
@@ -59,7 +59,7 @@ func generate_chunk(_map : Array[Voxel], interval) -> Chunk:
 	surface.optimize_indices_for_cache()
 	surface.generate_normals()
 	surface.generate_tangents()
-	WorldMap.set_map(map)
+	WorldMap.set_map(map, surface_voxels)
 	
 	return prepared_chunk(surface)
 
@@ -224,7 +224,8 @@ func build_hex_prism(voxel: Voxel) -> Dictionary:
 	neighbor = voxel.grid_position_xyz
 	neighbor.y += 1
 	if draw_face_towards(neighbor):
-		top_voxels.append(voxel)
+		voxel.surface_voxel = true
+		surface_voxels.append(voxel)
 		for i in range(sides):
 			var angle = TAU * float(i) / float(sides)
 			var x = cos(angle) * size
