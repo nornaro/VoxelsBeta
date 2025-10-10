@@ -10,7 +10,7 @@ var interact_mode : mode = mode.SELECT
 const BUILDSPRITE = preload("uid://cgpb4pbfvd0q3")
 const SELECTSPRITE = preload("uid://cctpnojcm20kn")
 
-var selected_voxel : Node3D
+var selected_voxel : Voxel
 var selected_unit : Unit
 var unit_moves : Array[Voxel]
 # Cursors
@@ -37,7 +37,6 @@ func init():
 
 func _process(_delta: float) -> void:
 	#mode select
-
 	if Input.is_action_just_pressed("Build"):
 		interact_mode = mode.BUILD
 		selection_indicator.texture = BUILDSPRITE
@@ -62,7 +61,7 @@ func _process(_delta: float) -> void:
 			elif interact_mode == mode.BUILD:
 				attempt_build(hit_data.object)
 		elif Input.is_action_just_pressed("RightClick"):
-			attempt_move_unit(hit_data.object)
+			attempt_move_unit(hit_data)
 
 
 func raycast_at_mouse(origin, end) -> HitData:
@@ -97,7 +96,7 @@ func deselect():
 	p_finder.clear_highlight()
 
 
-func attempt_select(hit: HitData): #hit is a HitData
+func attempt_select(hit: HitData):
 	deselect()
 	if hit.object.is_in_group("voxels") or hit.object.get_parent().is_in_group("voxels"):
 		highlight_voxel(hit)
@@ -108,15 +107,21 @@ func attempt_select(hit: HitData): #hit is a HitData
 		select_unit(hit.object.get_parent())
 
 
-func attempt_move_unit(hit_collider):
-	#if hit_collider is not VoxelCollider:
-		#print("not a voxelcollider")
-		#return
-	if not selected_unit or not unit_moves.has(hit_collider.voxel):
-		print("Invalid Move Attempt")
+func attempt_move_unit(hitdata : HitData):
+	if not selected_unit:
+		print("Select a unit first")
 		return
-	var voxel: Voxel = hit_collider.voxel
-	selected_unit.place_unit(voxel)
+	
+	var hit_chunk : Chunk = hitdata.object.get_parent()
+	var hit_voxel : Voxel = hit_chunk.voxel_at_point(hitdata)
+	if hit_voxel == null:
+		print("Hit voxel is null!")
+		return
+	
+	if unit_moves.has(hit_voxel):
+		selected_unit.place_unit(hit_voxel)
+	else:
+		print("Invalid Voxel")
 	deselect()
 
 
@@ -126,7 +131,7 @@ func select_unit(unit : Unit):
 	hide_cursor(voxel_cursor)
 	if unit is Unit:
 		highlight_unit(unit)
-		unit_moves = p_finder.find_reachable_voxels(unit.occupied_voxel, unit.movement_range, unit.max_height_movement)
+		unit_moves = p_finder.find_reachable_voxels(unit.occupied_voxel, unit)
 		p_finder.highlight_voxel(unit_moves)
 
 
@@ -139,6 +144,7 @@ func highlight_voxel(hit: HitData): #hit is hit_data
 	if hit_voxel == null:
 		print("Hit voxel is null!")
 		return
+	selected_voxel = hit_voxel
 	move_cursor(voxel_cursor, hit_voxel.world_position, 1)
 	voxel_cursor.visible = true
 	animate_cursor(voxel_cursor)

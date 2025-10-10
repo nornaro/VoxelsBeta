@@ -89,7 +89,8 @@ func print_generation_results(start : float, dict : Dictionary):
 ## Ignore buffer and ocean to return for object placer
 func get_placeable_voxels() -> Array[Voxel]:
 	var placeable_tiles : Array[Voxel] = []
-	for voxel : Voxel in WorldMap.top_layer_voxels:
+	for key in WorldMap.surface_layer:
+		var voxel = WorldMap.surface_layer[key]
 		if voxel.buffer or not voxel.placeable:
 			continue
 		placeable_tiles.append(voxel)

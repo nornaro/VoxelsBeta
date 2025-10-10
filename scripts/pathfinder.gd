@@ -5,47 +5,51 @@ class_name Pathfinder
 var markers = []
 
 
-func find_reachable_voxels(start : Voxel, movement_range: int, step: int) -> Array[Voxel]:
+func find_reachable_voxels(start: Voxel, unit: Unit) -> Array[Voxel]:
 	var queue = []
 	var visited = []
-	var reachable_voxels : Array[Voxel]
+	var reachable_voxels: Array[Voxel] = []
 
-	# Start from the initial Voxel
 	queue.append({"Voxel": start, "distance": 0})
-	visited.append(Vector2(start.grid_position_xz.x, start.grid_position_xz.y))
+	visited.append(start.grid_position_xz)
 
 	while queue.size() > 0:
 		var current = queue.pop_front()
-		var current_voxel : Voxel = current["Voxel"]
-		var current_distance : int = current["distance"]
-		
-		if current_distance > movement_range:
+		var current_voxel: Voxel = current["Voxel"]
+		var current_distance: int = current["distance"]
+
+		if current_distance > unit.movement_range:
 			continue
-		
-		# Add the current Voxel to the reachable list
+
 		reachable_voxels.append(current_voxel)
-		var current_pos = current_voxel.grid_position_xz
-		
+		var current_pos = current_voxel.grid_position_xyz
 		var neighbor_positions = VoxelData.get_tile_neighbor_table(current_pos.x)
-		# Explore neighbors
-		for direction : Vector2i in neighbor_positions:
-			var neighbor_coords = current_pos + direction
-			if not is_voxel_valid(neighbor_coords, current_voxel.grid_position_xyz, step) or visited.has(neighbor_coords):
+
+		for dir_2d: Vector2i in neighbor_positions:
+			var neighbor_2d = current_voxel.grid_position_xz + dir_2d
+			if visited.has(neighbor_2d):
 				continue
-			var neighbor_voxel = WorldMap.map_as_dict[neighbor_coords]
+
+			var neighbor_voxel: Voxel = WorldMap.surface_layer.get(neighbor_2d)
+			if not neighbor_voxel:
+				continue
+
+			if not is_voxel_valid(neighbor_voxel.grid_position_xyz, current_pos, unit.max_height_movement):
+				continue
+
 			queue.append({"Voxel": neighbor_voxel, "distance": current_distance + 1})
-			visited.append(neighbor_coords)
+			visited.append(neighbor_2d)
 
 	return reachable_voxels
 
 
-func is_voxel_valid(coords : Vector2i, current_pos : Vector3i, step: int) -> bool:
-	var voxel : Voxel = WorldMap.map_as_dict.get(coords)
+func is_voxel_valid(coords: Vector3i, current_pos: Vector3i, max_height_movement: int) -> bool:
+	var voxel: Voxel = WorldMap.map_as_dict.get(coords)
 	if voxel:
-		var diff = voxel.grid_position_xyz.y - current_pos.y
-		if abs(diff) > step:
+		var height_diff = abs(voxel.grid_position_xyz.y - current_pos.y)
+		if height_diff > max_height_movement:
 			return false
-		if voxel.occupier == null: #and voxel.type != VoxelData.voxel_type.WATER:
+		if voxel.occupier == null:
 			return true
 	return false
 
@@ -68,8 +72,8 @@ func highlight_voxel(selected_nodes : Array[Voxel]):
 	for i in range(selected_nodes.size()):
 		var marker : Node3D = markers[i]
 		var voxel : Voxel = selected_nodes[i]
-		marker.position = voxel.collider.position
+		marker.position = voxel.world_position
 		if marker.scale.x != WorldMap.world_settings.voxel_size:
 			marker.scale *= WorldMap.world_settings.voxel_size
-		marker.position.y += 0.05
+		marker.position.y += 1
 		marker.visible = true
