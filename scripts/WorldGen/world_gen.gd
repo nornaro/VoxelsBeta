@@ -4,19 +4,16 @@ extends Node
 @export var settings : GenerationSettings
 @export_category("Dependencies")
 @export var object_placer : ObjectPlacer
-@export var pfinder : Pathfinder
 @onready var interaction_tracker: Node3D = $"../Interaction_tracker"
 @onready var chunks: Node3D = $"../../Chunks"
 
 #UI
 @onready var label: RichTextLabel = $"../../Control/VBoxContainer/RichTextLabel"
-@export var loading_container: CenterContainer
 
 
 ## Starting point: Generate a random seed, create the tiles, place POI's
 func _ready() -> void:
 	WorldMap.clear_map()
-	loading_container.visible = true
 	WorldMap.world_settings = settings
 	init_seed()
 	var children = chunks.get_children() + get_children()
@@ -58,9 +55,7 @@ func generate_world():
 	
 	print_generation_results(starttime, interval)
 	interaction_tracker.init()
-	loading_container.visible = false
-	
-	Debugger.draw_voxel_dictionary(WorldMap.surface_layer)
+	#Debugger.draw_voxel_dictionary(WorldMap.surface_layer)
 
 
 ## This mess of a function loops through the timing results of generate_world and prints them

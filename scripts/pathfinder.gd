@@ -25,7 +25,7 @@ func find_reachable_voxels(start: Voxel, unit: Unit) -> Array[Voxel]:
 		var current_pos = current_voxel.grid_position_xyz
 		var neighbor_positions = VoxelData.get_tile_neighbor_table(current_pos.x)
 
-		# Search horizontally + vertically (within climb range)
+		# search horizontally and vertically within climb range
 		for dir_2d: Vector2i in neighbor_positions:
 			for dy in range(-unit.max_height_movement, unit.max_height_movement + 1):
 				var neighbor = Vector3i(

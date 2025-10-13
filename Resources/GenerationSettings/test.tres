@@ -13,9 +13,9 @@ domain_warp_fractal_type = 2
 
 [resource]
 script = ExtResource("1_eiv65")
-radius = 18
-max_height = 18
-terrace_steps = 0
+radius = 32
+max_height = 24
+terrace_steps = 3
 remove_overhang = false
 noise_height_bias = 0.25
 flat_buffer = false
