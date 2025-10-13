@@ -28,7 +28,7 @@ func fill_pos_dict():
 		voxel_layers[y].append(v)
 
 
-# We cant just compare against where the user clicked since voxels can have various heights!
+# We cant just compare against where the user clicked since voxels can have various sizes/offsets!
 # perform greedy-first-search across the relevant layer for quick lookup.
 func voxel_at_point(hd: HitData) -> Voxel:
 	# Move "into" the surface hit point toward the voxel center
