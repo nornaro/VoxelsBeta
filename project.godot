@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 VoxelData="*res://scripts/Global/voxel_data.gd"
 WorldMap="*res://scripts/Global/world.gd"
+Debugger="*res://scripts/Global/debugger.gd"
 
 [display]
 

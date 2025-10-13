@@ -59,6 +59,8 @@ func generate_world():
 	print_generation_results(starttime, interval)
 	interaction_tracker.init()
 	loading_container.visible = false
+	
+	Debugger.draw_voxel_dictionary(WorldMap.surface_layer)
 
 
 ## This mess of a function loops through the timing results of generate_world and prints them

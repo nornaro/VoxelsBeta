@@ -4,7 +4,8 @@ var map_as_dict : Dictionary[Vector3i, Voxel] = {}
 var is_map_staggered = false
 var world_settings : GenerationSettings
 var noise_range : Vector2
-var surface_layer: Dictionary[Vector2i, Voxel] = {}
+var surface_layer: Dictionary[Vector3i, Voxel] = {}
+
 
 ## Construct a dictionary for our 2d top layer of voxels
 func set_map(all_voxels, top_voxels):
@@ -12,7 +13,7 @@ func set_map(all_voxels, top_voxels):
 	for voxel : Voxel in all_voxels:
 		map_as_dict[Vector3i(voxel.grid_position_xyz)] = voxel
 	for t_voxel in top_voxels:
-		surface_layer[Vector2i(t_voxel.grid_position_xz)] = t_voxel
+		surface_layer[Vector3i(t_voxel.grid_position_xyz)] = t_voxel
 
 
 func clear_map():

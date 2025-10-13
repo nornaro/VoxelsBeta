@@ -7,11 +7,11 @@ var markers = []
 
 func find_reachable_voxels(start: Voxel, unit: Unit) -> Array[Voxel]:
 	var queue = []
-	var visited = []
+	var visited = {}
 	var reachable_voxels: Array[Voxel] = []
 
 	queue.append({"Voxel": start, "distance": 0})
-	visited.append(start.grid_position_xz)
+	visited[start.grid_position_xyz] = true
 
 	while queue.size() > 0:
 		var current = queue.pop_front()
@@ -25,26 +25,32 @@ func find_reachable_voxels(start: Voxel, unit: Unit) -> Array[Voxel]:
 		var current_pos = current_voxel.grid_position_xyz
 		var neighbor_positions = VoxelData.get_tile_neighbor_table(current_pos.x)
 
+		# Search horizontally + vertically (within climb range)
 		for dir_2d: Vector2i in neighbor_positions:
-			var neighbor_2d = current_voxel.grid_position_xz + dir_2d
-			if visited.has(neighbor_2d):
-				continue
+			for dy in range(-unit.max_height_movement, unit.max_height_movement + 1):
+				var neighbor = Vector3i(
+					current_pos.x + dir_2d.x,
+					current_pos.y + dy,
+					current_pos.z + dir_2d.y
+				)
+				
+				if visited.has(neighbor):
+					continue
+				
+				var neighbor_voxel: Voxel = WorldMap.surface_layer.get(neighbor)
+				if not neighbor_voxel:
+					continue
 
-			var neighbor_voxel: Voxel = WorldMap.surface_layer.get(neighbor_2d)
-			if not neighbor_voxel:
-				continue
+				if not is_voxel_valid(neighbor_voxel, current_pos, unit.max_height_movement):
+					continue
 
-			if not is_voxel_valid(neighbor_voxel.grid_position_xyz, current_pos, unit.max_height_movement):
-				continue
-
-			queue.append({"Voxel": neighbor_voxel, "distance": current_distance + 1})
-			visited.append(neighbor_2d)
+				queue.append({"Voxel": neighbor_voxel, "distance": current_distance + 1})
+				visited[neighbor] = true
 
 	return reachable_voxels
 
 
-func is_voxel_valid(coords: Vector3i, current_pos: Vector3i, max_height_movement: int) -> bool:
-	var voxel: Voxel = WorldMap.map_as_dict.get(coords)
+func is_voxel_valid(voxel: Voxel, current_pos: Vector3i, max_height_movement: int) -> bool:
 	if voxel:
 		var height_diff = abs(voxel.grid_position_xyz.y - current_pos.y)
 		if height_diff > max_height_movement:
