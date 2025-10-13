@@ -4,6 +4,7 @@ class_name Chunk
 var voxels : Array[Voxel]
 var voxel_layers: Dictionary[int, Array] = {}
 
+
 func init_chunk():
 	generate_collider()
 	add_to_group("voxels")
@@ -28,8 +29,9 @@ func fill_pos_dict():
 		voxel_layers[y].append(v)
 
 
+# Find a voxel at a given location
 # We cant just compare against where the user clicked since voxels can have various sizes/offsets!
-# perform greedy-first-search across the relevant layer for quick lookup.
+# perform greedy-first-search across the relevant layer for "quick" lookup.
 func voxel_at_point(hd: HitData) -> Voxel:
 	# Move "into" the surface hit point toward the voxel center
 	var corrected_pos: Vector3 = hd.point - hd.normal * (WorldMap.world_settings.voxel_height * 0.5)
