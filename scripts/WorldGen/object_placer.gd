@@ -2,6 +2,27 @@ extends Node
 class_name ObjectPlacer
 
 @export var village : PackedScene
+@export var proto_unit : PackedScene
+
+## placeholder functionality for placing units onto the map
+func create_starting_units(count : int):
+	var safety_count = 0 #Add safety counter in case no valid tiles
+	## Test pathfinder
+	while count > 0 and safety_count < 50:
+		var voxel: Voxel = null
+		if WorldMap.surface_layer.size() > 0:
+			var random_key = WorldMap.surface_layer.keys().pick_random()
+			voxel = WorldMap.surface_layer[random_key]
+
+		if voxel.occupier != null: #voxel.type == VoxelData.voxel_type.WATER or 
+			safety_count += 1
+			continue
+			
+		var unit : Unit = proto_unit.instantiate()
+		add_child(unit)
+		unit.place_unit(voxel)
+		count -= 1
+
 
 func place_villages(tiles : Array[Voxel], spacing : int):
 	var tiles_copy = tiles.duplicate(true) #copy tiles and leave original unaffected

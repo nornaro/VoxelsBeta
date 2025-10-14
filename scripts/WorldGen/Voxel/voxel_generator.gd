@@ -4,7 +4,7 @@ var map : Array[Voxel]
 var map_dict : Dictionary[Vector3i, Voxel]
 const sides = 6
 var settings : GenerationSettings
-var top_voxels : Array[Voxel]
+var surface_voxels : Array[Voxel]
 
 const ATLAS_RES   = Vector2i(512, 512)	# full atlas resolution in pixels
 const TILE_SIZE   = Vector2i(16, 16)	# usable area of one tile
@@ -22,7 +22,7 @@ const base_vertices = [
 	]
 
 
-func generate_chunk(_map : Array[Voxel], interval) -> Mesh:
+func generate_chunk(_map : Array[Voxel], interval) -> Chunk:
 	map = _map
 	settings = WorldMap.world_settings
 	var verts = PackedVector3Array()
@@ -59,9 +59,17 @@ func generate_chunk(_map : Array[Voxel], interval) -> Mesh:
 	surface.optimize_indices_for_cache()
 	surface.generate_normals()
 	surface.generate_tangents()
-	WorldMap.top_layer_voxels.clear()
-	WorldMap.top_layer_voxels.append_array(top_voxels)
-	return surface.commit()
+	WorldMap.set_map(map, surface_voxels)
+	
+	return prepared_chunk(surface)
+
+
+func prepared_chunk(surface) -> Chunk:
+	var chunk = Chunk.new()
+	chunk.mesh = surface.commit()
+	chunk.voxels = map
+	chunk.material_override = settings.material
+	return chunk
 
 
 func process_voxels() -> Vector2i:
@@ -109,13 +117,18 @@ func assign_air_probability(voxel: Voxel) -> void:
 
 
 func shape_geometry(prism) -> bool:
+	# Ensure solid first layer
+	if settings.solid_first_layer and prism.grid_position_xyz.y == 0:
+		prism.type = VoxelData.voxel_type.BEDROCK
+		return false
+	
 	# Convert to air
-	if prism.air_probability > settings.ground_to_air_ratio and prism.grid_position_xyz.y > 0:
+	if prism.air_probability > settings.ground_to_air_ratio:
 		prism.type = VoxelData.voxel_type.AIR
 		return true
 	
 	# Flatten buffer
-	if prism.buffer and settings.flat_buffer and prism.grid_position_xyz.y > 0:
+	if prism.buffer and settings.flat_buffer:
 		prism.type = VoxelData.voxel_type.AIR
 		return true
 	
@@ -142,7 +155,7 @@ func shape_geometry(prism) -> bool:
 
 
 func assign_type(voxel: Voxel):
-	if voxel.type == VoxelData.voxel_type.AIR:
+	if voxel.type == VoxelData.voxel_type.AIR or voxel.type == VoxelData.voxel_type.BEDROCK:
 		return
 
 	var tiles = VoxelData.tile_map.size()
@@ -150,19 +163,22 @@ func assign_type(voxel: Voxel):
 
 	var enum_index = int(floor(n * float(tiles)))
 	if enum_index == 0: # turn air into something else
-		enum_index = 3 # Stone, could also be randomized
+		enum_index = 5 # Sand, could also be randomized
+	elif enum_index == 1 and voxel.grid_position_xyz.y != 0: #turn bedrock into something else
+		enum_index = 5
 	
-	#Test for top-sensitive tiles like grass
-	var tile = enum_index as VoxelData.voxel_type
+	# surface replacement
 	var neighbor_above: Vector3i = voxel.grid_position_xyz + Vector3i(0,1,0)
 	var neighbor: Voxel = map_dict.get(neighbor_above)
-	if neighbor:
-		if neighbor.type != VoxelData.voxel_type.AIR: # if we are NOT a top layer voxel
-			if tile == VoxelData.voxel_type.GRASS: # if trying to create grass
-				enum_index = 2 #reassign to DIRT
-		else: # we ARE a top layer
-			if tile == VoxelData.voxel_type.DIRT: # if trying to create grass
-				enum_index = 1 #reassign to GRASS
+	var tile_dict : Dictionary = VoxelData.tile_map.get(enum_index as VoxelData.voxel_type)
+	if tile_dict.has("surface"):
+		if neighbor:
+			if neighbor.type == VoxelData.voxel_type.AIR:
+				enum_index = tile_dict["surface"]
+	if tile_dict.has("underground"):
+		if neighbor:
+			if neighbor.type != VoxelData.voxel_type.AIR:
+				enum_index = tile_dict["underground"]
 	
 	voxel.type = enum_index as VoxelData.voxel_type
 
@@ -197,9 +213,10 @@ func build_hex_prism(voxel: Voxel) -> Dictionary:
 	var height = settings.voxel_height
 	var pos = voxel.world_position
 	var top_offset = Vector3(0, height, 0)
-	var tiles = VoxelData.tile_map.get(voxel.type)
+	var tiles : Dictionary = VoxelData.tile_map.get(voxel.type)
 	var top_tile = tiles["top"]
 	var side_tile = tiles["side"]
+	var bottom_tile = tiles.get("bottom", top_tile)
 	var dirs = VoxelData.get_tile_neighbor_table(voxel.grid_position_xyz.x)
 	var neighbor : Vector3i
 	
@@ -207,7 +224,8 @@ func build_hex_prism(voxel: Voxel) -> Dictionary:
 	neighbor = voxel.grid_position_xyz
 	neighbor.y += 1
 	if draw_face_towards(neighbor):
-		top_voxels.append(voxel)
+		voxel.surface_voxel = true
+		surface_voxels.append(voxel)
 		for i in range(sides):
 			var angle = TAU * float(i) / float(sides)
 			var x = cos(angle) * size
@@ -234,9 +252,9 @@ func build_hex_prism(voxel: Voxel) -> Dictionary:
 			var x = cos(angle) * size
 			var z = sin(angle) * size
 			verts.append(pos + Vector3(x, 0, z))
-			uvs.append(atlas_uv(Vector2(0.5 + cos(angle)*0.5, 0.5 + sin(angle)*0.5), top_tile))
+			uvs.append(atlas_uv(Vector2(0.5 + cos(angle)*0.5, 0.5 + sin(angle)*0.5), bottom_tile))
 		verts.append(pos) # center
-		uvs.append(atlas_uv(Vector2(0.5,0.5), top_tile))
+		uvs.append(atlas_uv(Vector2(0.5,0.5), bottom_tile))
 		# triangles (note: winding reversed so normal faces down)
 		for i in range(sides):
 			indices.append(bottom_start + sides)  # center

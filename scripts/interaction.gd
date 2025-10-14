@@ -1,10 +1,16 @@
 extends Node3D
 
+enum mode {SELECT, BUILD}
+var interact_mode : mode = mode.SELECT
 @export var voxel_cursor_scene : PackedScene
 @export var unit_cursor_scene : PackedScene
 @export var main_camera : Camera3D
 @export var p_finder : Pathfinder
-var selected_voxel : Node3D
+@export var selection_indicator : TextureRect
+const BUILDSPRITE = preload("uid://cgpb4pbfvd0q3")
+const SELECTSPRITE = preload("uid://cctpnojcm20kn")
+
+var selected_voxel : Voxel
 var selected_unit : Unit
 var unit_moves : Array[Voxel]
 # Cursors
@@ -25,33 +31,61 @@ func init():
 	var scalar = WorldMap.world_settings.voxel_size
 	voxel_cursor.scale_object_local(Vector3(scalar, 1.0, scalar))
 	deselect()
+	selection_indicator.texture = SELECTSPRITE
 	initialized = true
 
 
-func _input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.is_pressed():
+func _process(_delta: float) -> void:
+	#mode select
+	if Input.is_action_just_pressed("Build"):
+		interact_mode = mode.BUILD
+		selection_indicator.texture = BUILDSPRITE
+	elif Input.is_action_just_pressed("Select"):
+		interact_mode = mode.SELECT
+		selection_indicator.texture = SELECTSPRITE
+		
+	# Setup raycast
+	if Input.is_action_just_pressed("Click") or Input.is_action_just_pressed("RightClick"):
 		var mouse_pos = get_viewport().get_mouse_position()
 		var origin = main_camera.project_ray_origin(mouse_pos)
 		var dir = main_camera.project_ray_normal(mouse_pos)
 		var end = origin + dir * 1000
-		var hit_object = raycast_at_mouse(origin, end) #returns the collider
-		if not hit_object:
+		var hit_data = raycast_at_mouse(origin, end)
+		if not hit_data:
+			print("hit data is empty")
 			return
+
 		if Input.is_action_just_pressed("Click"):
-			attempt_select(hit_object)
+			if interact_mode == mode.SELECT:
+				attempt_select(hit_data)
+			elif interact_mode == mode.BUILD:
+				attempt_build(hit_data.object)
 		elif Input.is_action_just_pressed("RightClick"):
-			attempt_move_unit(hit_object)
+			attempt_move_unit(hit_data)
 
 
-func raycast_at_mouse(origin, end) -> Node3D:
+func raycast_at_mouse(origin, end) -> HitData:
 		var query = PhysicsRayQueryParameters3D.create(origin, end)
 		var collision = get_world_3d().direct_space_state.intersect_ray(query)
 		if collision and collision.has("collider"):
 			var hit = collision.collider
-			return hit
+			var data = HitData.new()
+			data.object = hit
+			data.point = collision.position
+			data.normal = collision.normal
+			return data
 		else:
 			deselect()
 			return null
+
+
+func attempt_build(hit_object):
+	if hit_object.is_in_group("voxels"):
+		build_voxel(hit_object)
+
+
+func build_voxel(hit_object):
+	print(hit_object)
 
 
 func deselect():
@@ -62,26 +96,32 @@ func deselect():
 	p_finder.clear_highlight()
 
 
-func attempt_select(hit : Node3D):
+func attempt_select(hit: HitData):
 	deselect()
-	if hit.is_in_group("voxels"):
+	if hit.object.is_in_group("voxels") or hit.object.get_parent().is_in_group("voxels"):
 		highlight_voxel(hit)
 		return
-	if hit.is_in_group("units"):
-		select_unit(hit)
-	elif hit.get_parent().is_in_group("units"):
-		select_unit(hit.get_parent())
+	if hit.object.is_in_group("units"):
+		select_unit(hit.object)
+	elif hit.object.get_parent().is_in_group("units"):
+		select_unit(hit.object.get_parent())
 
 
-func attempt_move_unit(hit_collider):
-	if hit_collider is not VoxelCollider:
-		print("not a voxelcollider")
+func attempt_move_unit(hitdata : HitData):
+	if not selected_unit:
+		print("Select a unit first")
 		return
-	if not selected_unit or not unit_moves.has(hit_collider.voxel):
-		print("Invalid Move Attempt")
+	
+	var hit_chunk : Chunk = hitdata.object.get_parent()
+	var hit_voxel : Voxel = hit_chunk.voxel_at_point(hitdata)
+	if hit_voxel == null:
+		print("Hit voxel is null!")
 		return
-	var voxel: Voxel = hit_collider.voxel
-	selected_unit.place_unit(voxel)
+	
+	if unit_moves.has(hit_voxel):
+		selected_unit.place_unit(hit_voxel)
+	else:
+		print("Invalid Voxel")
 	deselect()
 
 
@@ -91,18 +131,23 @@ func select_unit(unit : Unit):
 	hide_cursor(voxel_cursor)
 	if unit is Unit:
 		highlight_unit(unit)
-		unit_moves = p_finder.find_reachable_voxels(unit.occupied_voxel, unit.movement_range, unit.max_height_movement)
+		unit_moves = p_finder.find_reachable_voxels(unit.occupied_voxel, unit)
 		p_finder.highlight_voxel(unit_moves)
 
 
-func highlight_voxel(voxel_col : VoxelCollider):
+# We have clicked somewhere on a chunk of voxels
+func highlight_voxel(hit: HitData): #hit is hit_data
 	selected_unit = null
-	selected_voxel = voxel_col
 	hide_cursor(unit_cursor)
-	move_cursor(voxel_cursor, voxel_col.global_position)
+	var hit_chunk : Chunk = hit.object.get_parent()
+	var hit_voxel : Voxel = hit_chunk.voxel_at_point(hit)
+	if hit_voxel == null:
+		print("Hit voxel is null!")
+		return
+	selected_voxel = hit_voxel
+	move_cursor(voxel_cursor, hit_voxel.world_position, 1)
 	voxel_cursor.visible = true
 	animate_cursor(voxel_cursor)
-	#print(voxel.voxel.type) # voxel of the collider
 
 
 func highlight_unit(unit):

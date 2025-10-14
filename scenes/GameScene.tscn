@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://bbqxpsy3vniy8"]
+[gd_scene load_steps=16 format=3 uid="uid://bbqxpsy3vniy8"]
 
 [ext_resource type="Script" uid="uid://b28iyxlwylpa5" path="res://scripts/camera_script.gd" id="1_1xefc"]
 [ext_resource type="Texture2D" uid="uid://dvbkqw12i4obk" path="res://assets/Materials/SkyBG.png" id="2_l7mlp"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://xm2lgya4capr" path="res://scenes/Cursors/hexagon_cursor.tscn" id="10_6pl24"]
 [ext_resource type="PackedScene" uid="uid://cqxjxq25t6wuy" path="res://scenes/Cursors/unit_cursor.tscn" id="11_w22tq"]
 [ext_resource type="Script" uid="uid://8c4mygj6ghrg" path="res://scripts/interaction.gd" id="12_tt8b8"]
+[ext_resource type="Texture2D" uid="uid://cctpnojcm20kn" path="res://assets/selectsprite.png" id="13_w22tq"]
 
 [sub_resource type="Environment" id="Environment_f2ci6"]
 background_mode = 3
@@ -79,28 +80,27 @@ stretch_mode = 4
 
 [node name="Builder" type="Node" parent="."]
 
-[node name="WorldGenerator" type="Node" parent="Builder" node_paths=PackedStringArray("object_placer", "loading_container", "pfinder")]
+[node name="WorldGenerator" type="Node" parent="Builder" node_paths=PackedStringArray("object_placer")]
 script = ExtResource("3_davhy")
 settings = ExtResource("4_58wc8")
 object_placer = NodePath("../ObjectPlacer")
-loading_container = NodePath("../../Control/CenterContainer")
-pfinder = NodePath("../Pathfinder")
-proto_unit = ExtResource("8_r58of")
 
 [node name="ObjectPlacer" type="Node" parent="Builder"]
 script = ExtResource("9_p13dw")
 village = ExtResource("7_yrli1")
+proto_unit = ExtResource("8_r58of")
 
 [node name="Pathfinder" type="Node" parent="Builder"]
 script = ExtResource("10_0b4my")
 highlight_marker = ExtResource("9_6pl24")
 
-[node name="Interaction_tracker" type="Node3D" parent="Builder" node_paths=PackedStringArray("main_camera", "p_finder")]
+[node name="Interaction_tracker" type="Node3D" parent="Builder" node_paths=PackedStringArray("main_camera", "p_finder", "selection_indicator")]
 script = ExtResource("12_tt8b8")
 voxel_cursor_scene = ExtResource("10_6pl24")
 unit_cursor_scene = ExtResource("11_w22tq")
 main_camera = NodePath("../../CameraParent/Camera3D")
 p_finder = NodePath("../Pathfinder")
+selection_indicator = NodePath("../../Control/TextureRect")
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
@@ -125,22 +125,20 @@ fit_content = true
 scroll_active = false
 autowrap_mode = 0
 
-[node name="CenterContainer" type="CenterContainer" parent="Control"]
+[node name="TextureRect" type="TextureRect" parent="Control"]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = 541.0
-offset_top = 262.0
-offset_right = 581.0
-offset_bottom = 302.0
-grow_horizontal = 2
-grow_vertical = 2
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 552.0
+offset_right = 121.0
+offset_bottom = 665.0
+grow_vertical = 0
+texture = ExtResource("13_w22tq")
+expand_mode = 3
+stretch_mode = 4
 
-[node name="Label" type="Label" parent="Control/CenterContainer"]
-layout_mode = 2
-text = "Loading..."
+[node name="Chunks" type="Node3D" parent="."]
 
 [connection signal="pressed" from="Control/VBoxContainer/Button" to="Builder/WorldGenerator" method="_ready"]
