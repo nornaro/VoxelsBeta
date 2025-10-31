@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://c5pyxvtbpydpn"]
+
+[ext_resource type="MeshLibrary" uid="uid://jojksj6jxsbd" path="res://KayKitHexOBJ.meshlib" id="1_pjy5x"]
+[ext_resource type="Script" uid="uid://qkj6n1k232et" path="res://scenes/grid_map.gd" id="2_schmw"]
+
+[node name="GridMapOverlay" type="GridMap"]
+transform = Transform3D(0.8660254, 0, 0.5, 0, 1, 0, -0.5, 0, 0.8660254, 0, 0, 0)
+visible = false
+mesh_library = ExtResource("1_pjy5x")
+cell_size = Vector3(0.01, 0.01, 0.01)
+cell_octant_size = 1
+cell_center_x = false
+cell_center_z = false
+script = ExtResource("2_schmw")
+metadata/_editor_floor_ = Vector3(0, 200, 0)
+
+[node name="GridMap" type="GridMap" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(0.8660254, 0, -0.5, 0, 1, 0, 0.5, 0, 0.8660254, 0, 0, 0)
+visible = false
+mesh_library = ExtResource("1_pjy5x")
+cell_size = Vector3(0.01, 0.01, 0.01)
+cell_octant_size = 1
+cell_center_x = false
+cell_center_z = false
+script = ExtResource("2_schmw")
+metadata/_editor_floor_ = Vector3(0, 100, 0)

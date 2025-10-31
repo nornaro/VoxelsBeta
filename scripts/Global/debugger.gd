@@ -1,3 +1,4 @@
+@tool
 extends Node
 
 var debug_cubes : Array = []
@@ -12,18 +13,18 @@ func draw_cube(pos: Vector3):
 	cube.position.y += 1
 	cube.material_override = StandardMaterial3D.new()
 	cube.material_override.albedo_color = Color(1, 0, 0)
-
-	get_tree().current_scene.add_child(cube)
+	
+	var scene = get_tree().current_scene
+	if scene:
+		scene.add_child(cube)
 	debug_cubes.append(cube)
 
 
 func draw_neighbors(voxel: Voxel):
 	var neighbors: Array[Voxel] = WorldMap.get_tile_neighbors_planar(voxel)
 	clear()
-	#print("Found ", neighbors.size(), " neighbors for voxel ", voxel.grid_position_xyz)
 	for n in neighbors:
 		draw_cube(n.world_position)
-		#print("Neighbor at: ", n.grid_position_xyz, " world: ", n.world_position)
 
 
 func draw_positions(positions: Array[Vector3]):

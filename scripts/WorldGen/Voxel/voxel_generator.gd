@@ -1,3 +1,4 @@
+@tool
 class_name VoxelGenerator
 
 var map : Array[Voxel]
@@ -188,8 +189,7 @@ func draw_face_towards(neighbor_pos : Vector3i) -> bool:
 	if neighbor:
 		if neighbor.type == VoxelData.voxel_type.AIR:
 			return true
-		else:
-			return false
+		return false
 	return true
 
 
@@ -315,3 +315,16 @@ func atlas_uv(local_uv: Vector2, tile: Vector2i) -> Vector2:
 	
 	# Map local_uv [0..1] into this rectangle
 	return uv_min + local_uv * (uv_max - uv_min)
+
+#func update_surface_heights():
+	#for voxel in map:
+		#if voxel.type == VoxelData.voxel_type.AIR:
+			#continue
+		#var above = voxel.grid_position_xyz + Vector3i(0, 1, 0)
+		#var above_voxel: Voxel = map_dict.get(above)
+		#if above_voxel and above_voxel.type != VoxelData.voxel_type.AIR:
+			#voxel.surface_voxel = false
+			#return
+		#voxel.surface_voxel = true
+		#if not surface_voxels.has(voxel):
+			#surface_voxels.append(voxel)

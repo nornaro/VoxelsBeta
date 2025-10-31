@@ -14,6 +14,7 @@ func _ready() -> void:
 	parent = get_parent()
 	adjust_height()
 	adjust_rotation()
+	$"../../Control".show()
 
 
 func _process(delta: float) -> void:
@@ -40,7 +41,7 @@ func move_camera(delta):
 	if move_vector != Vector3.ZERO:
 		move_vector = move_vector.normalized() * movespeed * delta
 		parent.position += move_vector
-
+		%Minimap.position = Vector3(parent.position.x,%Minimap.position.y, parent.position.z)
 
 func _input(event: InputEvent) -> void:
 	# Check for mouse wheel scrolling

@@ -1,0 +1,115 @@
+[gd_scene load_steps=11 format=4 uid="uid://dxs306fmmgkw8"]
+
+[ext_resource type="Script" uid="uid://36ymdt5di4f6" path="res://scenes/Cursors/hexagon_cursor_sb.gd" id="2_bbsu3"]
+[ext_resource type="Material" uid="uid://dmi1l2yaecsqy" path="res://assets/Materials/hex_cursor_mat.tres" id="2_vrixp"]
+[ext_resource type="PackedScene" uid="uid://cs65a7b6fwiqr" path="res://assets/voxel_cursor.tscn" id="3_l4qoy"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gmxm2"]
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_pj4qh"]
+_surfaces = [{
+"aabb": AABB(-1.01, -0.44737118, -0.87468565, 2.02, 0.9294189, 1.7493713),
+"format": 34896613377,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAAAAAIAAwAFAAEABAACAAYAAwAHAAUACAAEAAYABwAJAAUACAAGAAoABwALAAkACwAIAAoACwAKAAkA"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 12,
+"vertex_data": PackedByteArray("/z8AAAAAAAD/v///AAAAAP8///8AAAAA/78AAAAAAAAAAAAA/38AAP//////fwAAAAD///9/AAD//wAA/38AAP8/AAD//wAA/7//////AAD/P/////8AAP+/AAD//wAA")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_c7ebm"]
+resource_name = "hexagon_cursor_Cylinder_004"
+_surfaces = [{
+"aabb": AABB(-1.01, -0.44737118, -0.87468565, 2.02, 0.9294189, 1.7493713),
+"attribute_data": PackedByteArray("/////6nq/3////9/qer//6nq//9U1f9/qer/f1TV//9U1f///7//f1TV/3//v////7///6mq/3//v/9/qar//6mq//9Ulf9/qar/f1SV//9Ulf///3//f1SV/3//f///"),
+"format": 34896613399,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAAFAAYABAAHAAUACAAJAAoACAALAAkADAANAA4ADAAPAA0AEAARABIAEAATABEAFAAVABYAFAAXABUA"),
+"material": SubResource("StandardMaterial3D_gmxm2"),
+"primitive": 3,
+"uv_scale": Vector4(2, 1, 0, 0),
+"vertex_count": 24,
+"vertex_data": PackedByteArray("/z8AAAAA////v///AAD///8///8AAP///78AAAAA////vwAAAABU1f//////f1TV/7///wAAVNX//wAA/39U1f//AAD/f6mq/7//////qar//////3+pqv+/AAD//6mq/78AAP//AID/P/////8AgP+//////wCA/z8AAP//AID/PwAA//+pqgAA////f6mq/z//////qaoAAAAA/3+pqgAAAAD/f1TV/z///wAAVNUAAP///39U1f8/AAAAAFTV/3////9/////f////3////9/AAD/fwAA/38AAP9/AAD/fwAA/38AAP9/AAD/fwAA/3////9/////f////3////9/////f////3////9/////f////3////9/////f///")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_pj4qh")
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_0nhn4"]
+points = PackedVector3Array(0.51301587, 0.49847305, 0.9044725, -0.51983196, -0.44126028, -0.84900975, -0.8554205, -0.44079158, -0.26774392, 0.51301587, -0.46343172, 0.9044725, 0.51983196, 0.4763016, -0.84900975, -0.9881493, 0.48071563, 0.037847195, 0.97883767, -0.4413095, -0.05397559, -0.51301587, -0.46343172, 0.9044725, -0.51983196, 0.4763016, -0.84900975, -0.51301587, 0.49847305, 0.9044725, 0.9881493, 0.48071563, 0.037847195, 0.51983196, -0.44126028, -0.84900975, -0.9881493, -0.4456743, 0.037847195, 0.9881493, -0.4456743, 0.037847195, -0.97883767, 0.47635084, -0.05397559, 0.97883767, 0.47635084, -0.05397559, -0.97883767, -0.4413095, -0.05397559)
+
+[sub_resource type="Animation" id="Animation_iupn8"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CSGSphere3D:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 1.5, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_nt0i0"]
+resource_name = "idle"
+length = 2.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CSGSphere3D:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 1.5, 0), Vector3(0, 1.347565, 0), Vector3(0, 1.5, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_qg8cy"]
+_data = {
+&"RESET": SubResource("Animation_iupn8"),
+&"idle": SubResource("Animation_nt0i0")
+}
+
+[node name="hexagon_cursor" type="StaticBody3D"]
+top_level = true
+visible = false
+script = ExtResource("2_bbsu3")
+
+[node name="Cylinder" type="MeshInstance3D" parent="."]
+material_override = ExtResource("2_vrixp")
+transparency = 0.99
+cast_shadow = 0
+mesh = SubResource("ArrayMesh_c7ebm")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("ConvexPolygonShape3D_0nhn4")
+disabled = true
+debug_fill = false
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+radius = 0.15
+radial_segments = 10
+rings = 5
+material = ExtResource("2_vrixp")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_qg8cy")
+}
+autoplay = "idle"
+
+[node name="voxel_cursor2" parent="." instance=ExtResource("3_l4qoy")]
+
+[connection signal="input_event" from="." to="." method="_on_input_event"]
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="property_list_changed" from="." to="." method="_on_property_list_changed"]
+[connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]

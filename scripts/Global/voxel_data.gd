@@ -1,3 +1,4 @@
+@tool
 extends Node
 
 enum voxel_type {AIR, BEDROCK, GRASS, DIRT, STONE, SAND}
@@ -63,6 +64,5 @@ func get_tile_neighbor_table(row) -> Array[Vector2i]:
 	if WorldMap.is_map_staggered:
 		if row % 2 == 0:
 			return NEIGHBOR_DIRECTIONS_EVEN
-		else:
-			return NEIGHBOR_DIRECTIONS_ODD
+		return NEIGHBOR_DIRECTIONS_ODD
 	return HEXAGONAL_NEIGHBOR_DIRECTIONS

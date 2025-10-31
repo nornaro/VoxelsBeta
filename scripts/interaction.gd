@@ -1,3 +1,4 @@
+@tool
 extends Node3D
 
 enum mode {SELECT, BUILD}
@@ -14,9 +15,11 @@ var selected_voxel : Voxel
 var selected_unit : Unit
 var unit_moves : Array[Voxel]
 # Cursors
-var voxel_cursor : Node3D
+var voxel_cursor : StaticBody3D
 var unit_cursor : Node3D
 var initialized = false
+var selected:Node3D
+
 
 func init():
 	if initialized:
@@ -34,49 +37,80 @@ func init():
 	selection_indicator.texture = SELECTSPRITE
 	initialized = true
 
+func _ready() -> void:
+		selection_indicator = $"../../Control/TextureRect"
 
 func _process(_delta: float) -> void:
-	#mode select
+	if Engine.is_editor_hint():
+		if EditorInterface.get_selection().get_selected_nodes().is_empty():
+			return
+		if EditorInterface.get_selection().get_selected_nodes()[0] is not CollisionObject3D:
+			return
+		selected = EditorInterface.get_selection().get_selected_nodes()[0] 
+		editor_only_input()
+		return
+	mode_select()
+	setup_raycast()
+
+func editor_only_input() -> void:
+	if !selected:
+		return
+	var pointer = Vector2i( roundi(selected.global_position.x),roundi(selected.global_position.z))
+	if !WorldMap.map_xz_dict.has(pointer):
+		return
+	selected.global_position.x = WorldMap.map_xz_dict[pointer].x
+	selected.global_position.z = WorldMap.map_xz_dict[pointer].z
+	if Input.is_action_just_pressed("ui_home"):
+		selected.rotation.y -= deg_to_rad(30)
+	if Input.is_action_just_pressed("ui_end"):
+		selected.rotation.y += deg_to_rad(30)
+		
+func mode_select() -> void:
 	if Input.is_action_just_pressed("Build"):
 		interact_mode = mode.BUILD
 		selection_indicator.texture = BUILDSPRITE
-	elif Input.is_action_just_pressed("Select"):
+	if Input.is_action_just_pressed("Select"):
 		interact_mode = mode.SELECT
 		selection_indicator.texture = SELECTSPRITE
 		
-	# Setup raycast
-	if Input.is_action_just_pressed("Click") or Input.is_action_just_pressed("RightClick"):
-		var mouse_pos = get_viewport().get_mouse_position()
-		var origin = main_camera.project_ray_origin(mouse_pos)
-		var dir = main_camera.project_ray_normal(mouse_pos)
-		var end = origin + dir * 1000
-		var hit_data = raycast_at_mouse(origin, end)
-		if not hit_data:
-			print("hit data is empty")
-			return
+func setup_raycast() -> void:
+	if !Input.is_action_just_pressed("Click") and Input.is_action_just_pressed("RightClick"):
+		return
+	var mouse_pos = get_viewport().get_mouse_position()
+	var origin = main_camera.project_ray_origin(mouse_pos)
+	var dir = main_camera.project_ray_normal(mouse_pos)
+	var end = origin + dir * 1000
+	var hit_data:HitData = raycast_at_mouse(origin, end)
+	if hit_data:
+		runtime_only_input(hit_data)
+	#print("hit data is empty")
+	return
 
+func runtime_only_input(hit_data) -> void:
 		if Input.is_action_just_pressed("Click"):
 			if interact_mode == mode.SELECT:
 				attempt_select(hit_data)
-			elif interact_mode == mode.BUILD:
+			if interact_mode == mode.BUILD:
 				attempt_build(hit_data.object)
-		elif Input.is_action_just_pressed("RightClick"):
+		if Input.is_action_just_pressed("RightClick"):
 			attempt_move_unit(hit_data)
 
 
 func raycast_at_mouse(origin, end) -> HitData:
-		var query = PhysicsRayQueryParameters3D.create(origin, end)
-		var collision = get_world_3d().direct_space_state.intersect_ray(query)
-		if collision and collision.has("collider"):
-			var hit = collision.collider
-			var data = HitData.new()
-			data.object = hit
-			data.point = collision.position
-			data.normal = collision.normal
-			return data
-		else:
-			deselect()
-			return null
+	if Engine.is_editor_hint():
+		return
+	
+	var query = PhysicsRayQueryParameters3D.create(origin, end)
+	var collision = get_world_3d().direct_space_state.intersect_ray(query)
+	if !collision or !collision.has("collider"):
+		deselect()
+		return null
+	var hit = collision.collider
+	var data = HitData.new()
+	data.object = hit
+	data.point = collision.position
+	data.normal = collision.normal
+	return data
 
 
 func attempt_build(hit_object):
@@ -89,8 +123,8 @@ func build_voxel(hit_object):
 
 
 func deselect():
-	hide_cursor(voxel_cursor)
-	hide_cursor(unit_cursor)
+	#hide_cursor(voxel_cursor)
+	#hide_cursor(unit_cursor)
 	unit_moves.clear()
 	selected_unit = null
 	p_finder.clear_highlight()
@@ -147,6 +181,7 @@ func highlight_voxel(hit: HitData): #hit is hit_data
 	selected_voxel = hit_voxel
 	move_cursor(voxel_cursor, hit_voxel.world_position, 1)
 	voxel_cursor.visible = true
+	voxel_cursor.top_level = true
 	animate_cursor(voxel_cursor)
 
 
@@ -164,7 +199,7 @@ func move_cursor(cursor : Node3D, pos : Vector3, height : float = 0):
 
 func animate_cursor(cursor : Node3D):
 	var tween = get_tree().create_tween()
-	var initial_scale = cursor.scale
+	var initial_scale = Vector3.ONE #cursor.scale
 	var target_scale = initial_scale * 1.15
 	tween.set_trans(Tween.TRANS_SPRING)
 	tween.set_ease(Tween.EASE_IN_OUT)
@@ -174,5 +209,5 @@ func animate_cursor(cursor : Node3D):
 
 func hide_cursor(cursor : Node3D):
 	if cursor:
-		move_cursor(cursor, Vector3.ZERO, -10)
+		#move_cursor(cursor, Vector3.ZERO, -10)
 		cursor.visible = false

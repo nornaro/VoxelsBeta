@@ -1,8 +1,10 @@
+@tool
 extends MeshInstance3D
 class_name Chunk
 
 var voxels : Array[Voxel]
 var voxel_layers: Dictionary[int, Array] = {}
+var map_seed:int = 0
 
 
 func init_chunk():

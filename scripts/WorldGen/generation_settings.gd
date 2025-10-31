@@ -1,3 +1,4 @@
+@tool
 extends Resource
 class_name GenerationSettings
 
@@ -6,7 +7,7 @@ enum shape {HEXAGONAL, RECTANGULAR, DIAMOND, CIRCLE}
 @export_category("Map")
 @export var map_shape : shape = shape.HEXAGONAL
 @export var map_seed : int
-@export_range(0, 64, 1) var radius: int = 5
+@export_range(0, 640, 1) var radius: int = 5
 @export_range(1, 128, 1) var max_height: int = 3
 @export_range(0, 8) var terrace_steps = 1
 @export var remove_overhang = true
@@ -30,3 +31,22 @@ enum shape {HEXAGONAL, RECTANGULAR, DIAMOND, CIRCLE}
 @export var spawn_villages_and_units = true
 @export var map_edge_buffer = 2
 @export_range(1, 99) var spacing = 6
+
+func dump() -> Dictionary:
+	var vars := {}
+	for prop in get_property_list():
+		if prop.usage & PROPERTY_USAGE_STORAGE:
+			vars[prop.name] = get(prop.name)
+	return vars
+
+func save_settings(path: String = "user://gen_settings.tres",res:Resource = self) -> void:
+	var result = ResourceSaver.save(res, path)
+	if result != OK:
+		push_error("Failed to save GenerationSettings: %s" % result)
+		
+func load_settings(path: String = "user://gen_settings.tres") -> GenerationSettings:
+	var res := ResourceLoader.load(path)
+	if res is GenerationSettings:
+		return res
+	push_error("Invalid GenerationSettings resource at %s" % path)
+	return GenerationSettings.new()

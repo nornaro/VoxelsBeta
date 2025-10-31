@@ -1,3 +1,4 @@
+@tool
 class_name PositionData
 
 var grid_position : Vector2i

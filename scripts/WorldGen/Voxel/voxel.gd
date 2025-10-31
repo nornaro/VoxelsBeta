@@ -1,3 +1,4 @@
+@tool
 class_name Voxel
 
 var grid_position_xyz : Vector3i

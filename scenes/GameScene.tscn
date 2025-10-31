@@ -1,48 +1,60 @@
-[gd_scene load_steps=16 format=3 uid="uid://bbqxpsy3vniy8"]
+[gd_scene load_steps=30 format=3 uid="uid://bbqxpsy3vniy8"]
 
 [ext_resource type="Script" uid="uid://b28iyxlwylpa5" path="res://scripts/camera_script.gd" id="1_1xefc"]
 [ext_resource type="Texture2D" uid="uid://dvbkqw12i4obk" path="res://assets/Materials/SkyBG.png" id="2_l7mlp"]
 [ext_resource type="Script" uid="uid://bjw6prx0uxiil" path="res://scripts/WorldGen/world_gen.gd" id="3_davhy"]
-[ext_resource type="Resource" uid="uid://ckxwwmtqxkujw" path="res://Resources/GenerationSettings/test.tres" id="4_58wc8"]
 [ext_resource type="PackedScene" uid="uid://5hq7deseilvo" path="res://scenes/POI/VillageScene.tscn" id="7_yrli1"]
 [ext_resource type="PackedScene" uid="uid://grijaagmqw4" path="res://scenes/Units/prototype_unit.tscn" id="8_r58of"]
 [ext_resource type="PackedScene" uid="uid://bb3hit25an5ti" path="res://scenes/Cursors/path_overlay.tscn" id="9_6pl24"]
 [ext_resource type="Script" uid="uid://bne86up5eweyd" path="res://scripts/WorldGen/object_placer.gd" id="9_p13dw"]
 [ext_resource type="Script" uid="uid://bdy82nphtcvus" path="res://scripts/pathfinder.gd" id="10_0b4my"]
-[ext_resource type="PackedScene" uid="uid://xm2lgya4capr" path="res://scenes/Cursors/hexagon_cursor.tscn" id="10_6pl24"]
 [ext_resource type="PackedScene" uid="uid://cqxjxq25t6wuy" path="res://scenes/Cursors/unit_cursor.tscn" id="11_w22tq"]
 [ext_resource type="Script" uid="uid://8c4mygj6ghrg" path="res://scripts/interaction.gd" id="12_tt8b8"]
+[ext_resource type="Script" uid="uid://luqh2xcblpca" path="res://scenes/save.gd" id="13_kxqg4"]
 [ext_resource type="Texture2D" uid="uid://cctpnojcm20kn" path="res://assets/selectsprite.png" id="13_w22tq"]
+[ext_resource type="Script" uid="uid://0k8jgfy8cqfx" path="res://scripts/WorldGen/generation_settings.gd" id="14_6nmf6"]
+[ext_resource type="Script" uid="uid://db2mrbsbp4tr0" path="res://scenes/load.gd" id="14_21xg8"]
+[ext_resource type="Script" uid="uid://dn1vbg3h22ent" path="res://scenes/min.gd" id="14_qitmq"]
+[ext_resource type="Script" uid="uid://t1xgnnl5fgai" path="res://scenes/plu.gd" id="15_kxqg4"]
+[ext_resource type="Script" uid="uid://dalg8kcy1ub4c" path="res://scenes/settings.gd" id="16_6nmf6"]
+[ext_resource type="Resource" uid="uid://csnwbt4fnsmon" path="res://save/q1/Chunks/-1997512057.tres" id="16_lk0vr"]
+[ext_resource type="Script" uid="uid://csvrvcj6xpgv3" path="res://scenes/build_nodes.gd" id="18_a5tct"]
+[ext_resource type="Script" uid="uid://xlukch0ypbxj" path="res://scenes/chunks.gd" id="18_iaegw"]
+[ext_resource type="PackedScene" uid="uid://dxs306fmmgkw8" path="res://scenes/Cursors/hexagon_cursor_sb.tscn" id="18_icif4"]
+[ext_resource type="Script" uid="uid://bg2yw40sclq3f" path="res://scenes/building.gd" id="19_iaegw"]
+[ext_resource type="Script" uid="uid://dkyingyqrayvr" path="res://scenes/tile.gd" id="20_2gh7q"]
 
-[sub_resource type="Environment" id="Environment_f2ci6"]
-background_mode = 3
-background_color = Color(0, 0.214146, 0.346416, 1)
-background_canvas_max_layer = -100
-reflected_light_source = 1
-tonemap_mode = 4
-tonemap_white = 2.0
-ssao_enabled = true
-ssil_enabled = true
-sdfgi_enabled = true
-glow_enabled = true
+[sub_resource type="GDScript" id="GDScript_iaegw"]
+
+[sub_resource type="Environment" id="Environment_w22tq"]
 fog_enabled = true
-fog_light_color = Color(0.395135, 0.482894, 0.519378, 1)
-fog_density = 0.015
-fog_sky_affect = 0.0
-fog_height = 1.0
+fog_density = 0.001
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.015
 
-[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_1lvu4"]
-dof_blur_far_enabled = true
-dof_blur_far_distance = 40.0
-dof_blur_far_transition = 45.0
+[sub_resource type="Environment" id="Environment_e8rlm"]
+tonemap_exposure = 0.1
+adjustment_enabled = true
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_w22tq"]
+auto_exposure_enabled = true
+auto_exposure_scale = 0.8
+
+[sub_resource type="Resource" id="Resource_lk0vr"]
+script = ExtResource("14_6nmf6")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_w22tq"]
+viewport_path = NodePath("CameraParent/Minimap")
 
 [node name="World" type="Node3D"]
+script = SubResource("GDScript_iaegw")
 
 [node name="CameraParent" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.117906, 15.1842, 10.1434)
 
 [node name="Camera3D" type="Camera3D" parent="CameraParent" node_paths=PackedStringArray("sun")]
 transform = Transform3D(1, 0, 0, 0, 0.998537, -0.0540788, 0, 0.0540788, 0.998537, 0, 0, 0)
+environment = SubResource("Environment_w22tq")
 script = ExtResource("1_1xefc")
 movespeed = 9
 zoom = Vector2(40, 90)
@@ -50,11 +62,18 @@ height = Vector2(-10, 40)
 rot = Vector2(-20, -90)
 sun = NodePath("../../Scene/DirectionalLight3D")
 
-[node name="Scene" type="Node3D" parent="."]
+[node name="Minimap" type="SubViewport" parent="CameraParent"]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="Scene"]
-environment = SubResource("Environment_f2ci6")
-camera_attributes = SubResource("CameraAttributesPractical_1lvu4")
+[node name="Minimap" type="Camera3D" parent="CameraParent/Minimap"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 48, 0)
+environment = SubResource("Environment_e8rlm")
+attributes = SubResource("CameraAttributesPractical_w22tq")
+fov = 48.0
+size = 0.08
+near = 1.329
+
+[node name="Scene" type="Node3D" parent="."]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Scene"]
 transform = Transform3D(0.151402, -0.877164, 0.455698, 0.0622852, 0.468562, 0.881232, -0.986508, -0.105037, 0.125576, 0, 4.09007, 0)
@@ -81,8 +100,9 @@ stretch_mode = 4
 [node name="Builder" type="Node" parent="."]
 
 [node name="WorldGenerator" type="Node" parent="Builder" node_paths=PackedStringArray("object_placer")]
+unique_name_in_owner = true
 script = ExtResource("3_davhy")
-settings = ExtResource("4_58wc8")
+settings = ExtResource("16_lk0vr")
 object_placer = NodePath("../ObjectPlacer")
 
 [node name="ObjectPlacer" type="Node" parent="Builder"]
@@ -95,50 +115,208 @@ script = ExtResource("10_0b4my")
 highlight_marker = ExtResource("9_6pl24")
 
 [node name="Interaction_tracker" type="Node3D" parent="Builder" node_paths=PackedStringArray("main_camera", "p_finder", "selection_indicator")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
 script = ExtResource("12_tt8b8")
-voxel_cursor_scene = ExtResource("10_6pl24")
+voxel_cursor_scene = ExtResource("18_icif4")
 unit_cursor_scene = ExtResource("11_w22tq")
 main_camera = NodePath("../../CameraParent/Camera3D")
 p_finder = NodePath("../Pathfinder")
 selection_indicator = NodePath("../../Control/TextureRect")
 
 [node name="Control" type="Control" parent="."]
+top_level = true
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Control"]
-layout_mode = 0
-offset_right = 100.0
-offset_bottom = 80.0
+[node name="HBoxContainer" type="HBoxContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="Button" type="Button" parent="Control/VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 0
+mouse_filter = 0
+
+[node name="Gen" type="HBoxContainer" parent="Control/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Generate" type="Button" parent="Control/HBoxContainer/VBoxContainer/Gen"]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "Generate"
 
-[node name="RichTextLabel" type="RichTextLabel" parent="Control/VBoxContainer"]
+[node name="Settings" type="Button" parent="Control/HBoxContainer/VBoxContainer/Gen"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "Settings"
+script = ExtResource("16_6nmf6")
+settings_res = SubResource("Resource_lk0vr")
+
+[node name="SaveLoad" type="HBoxContainer" parent="Control/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Save" type="Button" parent="Control/HBoxContainer/VBoxContainer/SaveLoad"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Save"
+script = ExtResource("13_kxqg4")
+
+[node name="Load" type="Button" parent="Control/HBoxContainer/VBoxContainer/SaveLoad"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Load"
+script = ExtResource("14_21xg8")
+d = "res://save/q1"
+
+[node name="RTL" type="RichTextLabel" parent="Control/HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 bbcode_enabled = true
-text = "Text Here"
+text = "[b]Calculate Map Positions -- [/b][i]3.0ms
+[/i][b]Processing Voxels total -- [/b][i]1ms
+[/i][b]Build voxels -- [/b][i]2ms
+[/i][b]Create Voxel Mesh -- [/b][i]3ms
+[/i][b]Spawn Villages -- [/b][i]1ms
+[/i][b]Total completion time: [/b][i]10.0ms[/i]"
 fit_content = true
 scroll_active = false
 autowrap_mode = 0
 
+[node name="ScrollContainer" type="ScrollContainer" parent="Control/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 0
+
+[node name="Panel" type="Panel" parent="Control/HBoxContainer/ScrollContainer"]
+unique_name_in_owner = true
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LoadList" type="ItemList" parent="Control/HBoxContainer/ScrollContainer/Panel"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 450)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+allow_reselect = true
+item_count = 3
+item_0/text = "Building"
+item_1/text = "Chunks"
+item_2/text = "Tile"
+
+[node name="SaveName" type="LineEdit" parent="Control/HBoxContainer/ScrollContainer/Panel"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 5.0
+offset_top = 35.0
+offset_right = 309.0
+offset_bottom = 66.0
+placeholder_text = "Max 32 long name"
+max_length = 32
+
+[node name="Control" type="VBoxContainer" parent="Control/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TextureRect2" type="TextureRect" parent="Control/HBoxContainer/Control"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+texture = SubResource("ViewportTexture_w22tq")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/HBoxContainer/Control/TextureRect2"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -36.0
+offset_top = -31.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="-" type="Button" parent="Control/HBoxContainer/Control/TextureRect2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+text = "-"
+flat = true
+script = ExtResource("14_qitmq")
+
+[node name="+" type="Button" parent="Control/HBoxContainer/Control/TextureRect2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+text = "+
+"
+flat = true
+script = ExtResource("15_kxqg4")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Control/HBoxContainer/Control"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SettingsPanel" type="GridContainer" parent="Control/HBoxContainer/Control/ScrollContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 10
+size_flags_vertical = 3
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+columns = 2
+
 [node name="TextureRect" type="TextureRect" parent="Control"]
 layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 552.0
-offset_right = 121.0
-offset_bottom = 665.0
-grow_vertical = 0
 texture = ExtResource("13_w22tq")
 expand_mode = 3
 stretch_mode = 4
 
-[node name="Chunks" type="Node3D" parent="."]
+[node name="BuildNodes" type="Node3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("18_a5tct")
 
-[connection signal="pressed" from="Control/VBoxContainer/Button" to="Builder/WorldGenerator" method="_ready"]
+[node name="Chunks" type="Node3D" parent="BuildNodes"]
+unique_name_in_owner = true
+script = ExtResource("18_iaegw")
+
+[node name="Building" type="Node3D" parent="BuildNodes"]
+unique_name_in_owner = true
+script = ExtResource("19_iaegw")
+
+[node name="Tile" type="Node3D" parent="BuildNodes"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+script = ExtResource("20_2gh7q")
+
+[connection signal="input_event" from="Builder/Interaction_tracker/hexagon_cursor" to="Builder/Interaction_tracker/hexagon_cursor" method="_on_input_event"]
+[connection signal="mouse_entered" from="Builder/Interaction_tracker/hexagon_cursor" to="Builder/Interaction_tracker/hexagon_cursor" method="_on_mouse_entered"]
+[connection signal="property_list_changed" from="Builder/Interaction_tracker/hexagon_cursor" to="Builder/Interaction_tracker/hexagon_cursor" method="_on_property_list_changed"]
+[connection signal="visibility_changed" from="Builder/Interaction_tracker/hexagon_cursor" to="Builder/Interaction_tracker/hexagon_cursor" method="_on_visibility_changed"]
+[connection signal="pressed" from="Control/HBoxContainer/VBoxContainer/Gen/Generate" to="Builder/WorldGenerator" method="_ready"]
+[connection signal="pressed" from="Control/HBoxContainer/VBoxContainer/Gen/Settings" to="Control/HBoxContainer/VBoxContainer/Gen/Settings" method="_on_pressed"]
