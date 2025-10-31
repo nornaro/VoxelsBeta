@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://b28iyxlwylpa5" path="res://scripts/camera_script.gd" id="1_1xefc"]
 [ext_resource type="Texture2D" uid="uid://dvbkqw12i4obk" path="res://assets/Materials/SkyBG.png" id="2_l7mlp"]
 [ext_resource type="Script" uid="uid://bjw6prx0uxiil" path="res://scripts/WorldGen/world_gen.gd" id="3_davhy"]
+[ext_resource type="Resource" uid="uid://ckxwwmtqxkujw" path="res://Resources/GenerationSettings/test.tres" id="4_6nmf6"]
 [ext_resource type="PackedScene" uid="uid://5hq7deseilvo" path="res://scenes/POI/VillageScene.tscn" id="7_yrli1"]
 [ext_resource type="PackedScene" uid="uid://grijaagmqw4" path="res://scenes/Units/prototype_unit.tscn" id="8_r58of"]
 [ext_resource type="PackedScene" uid="uid://bb3hit25an5ti" path="res://scenes/Cursors/path_overlay.tscn" id="9_6pl24"]
@@ -17,7 +18,6 @@
 [ext_resource type="Script" uid="uid://dn1vbg3h22ent" path="res://scenes/min.gd" id="14_qitmq"]
 [ext_resource type="Script" uid="uid://t1xgnnl5fgai" path="res://scenes/plu.gd" id="15_kxqg4"]
 [ext_resource type="Script" uid="uid://dalg8kcy1ub4c" path="res://scenes/settings.gd" id="16_6nmf6"]
-[ext_resource type="Resource" uid="uid://csnwbt4fnsmon" path="res://save/q1/Chunks/-1997512057.tres" id="16_lk0vr"]
 [ext_resource type="Script" uid="uid://csvrvcj6xpgv3" path="res://scenes/build_nodes.gd" id="18_a5tct"]
 [ext_resource type="Script" uid="uid://xlukch0ypbxj" path="res://scenes/chunks.gd" id="18_iaegw"]
 [ext_resource type="PackedScene" uid="uid://dxs306fmmgkw8" path="res://scenes/Cursors/hexagon_cursor_sb.tscn" id="18_icif4"]
@@ -102,7 +102,7 @@ stretch_mode = 4
 [node name="WorldGenerator" type="Node" parent="Builder" node_paths=PackedStringArray("object_placer")]
 unique_name_in_owner = true
 script = ExtResource("3_davhy")
-settings = ExtResource("16_lk0vr")
+settings = ExtResource("4_6nmf6")
 object_placer = NodePath("../ObjectPlacer")
 
 [node name="ObjectPlacer" type="Node" parent="Builder"]
@@ -185,12 +185,12 @@ d = "res://save/q1"
 unique_name_in_owner = true
 layout_mode = 2
 bbcode_enabled = true
-text = "[b]Calculate Map Positions -- [/b][i]3.0ms
+text = "[b]Calculate Map Positions -- [/b][i]1.0ms
 [/i][b]Processing Voxels total -- [/b][i]1ms
-[/i][b]Build voxels -- [/b][i]2ms
-[/i][b]Create Voxel Mesh -- [/b][i]3ms
-[/i][b]Spawn Villages -- [/b][i]1ms
-[/i][b]Total completion time: [/b][i]10.0ms[/i]"
+[/i][b]Build voxels -- [/b][i]0ms
+[/i][b]Create Voxel Mesh -- [/b][i]4ms
+[/i][b]Spawn Villages -- [/b][i]0ms
+[/i][b]Total completion time: [/b][i]6.0ms[/i]"
 fit_content = true
 scroll_active = false
 autowrap_mode = 0
