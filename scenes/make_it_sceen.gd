@@ -3,28 +3,35 @@ extends Node3D
 
 @export_tool_button("Generate") var generate = generate_from_obj
 @export_tool_button("Texture") var texture = texture_res
-@export var save_dir_base:String = "res://addons/kaykit_medieval_hexagon_pack/Assets/obj/"
-@export var albedo_texture : Texture2D = preload("res://assets/kaykit_medieval_hexagon_pack/Textures/hexagons_medieval.png")
+@export var source_dir_base:String = "res://addons/kaykit_medieval_hexagon_pack/Assets/obj"
+@export var save_dir_base:String = "res://assets/kaykit_medieval_hexagon_pack"
+@export var albedo_texture = preload("res://Textures/hexagons_medieval.png")
 
 func generate_from_obj() -> void:
-	_process_dir(save_dir_base)
+	_process_dir(source_dir_base,save_dir_base)
 	return
 
 
-func _process_dir(path:String) -> void:
-	var dirs = DirAccess.get_directories_at(path)
-	var files = DirAccess.get_files_at(path)
+func _process_dir(source_dir:String, save_dir:String) -> void:
+	var dirs = DirAccess.get_directories_at(source_dir)
+	var files = DirAccess.get_files_at(source_dir)
 	var obj_files:Array[String] = []
 
 	for f in files:
-		if f.ends_with(".obj"):
-			obj_files.append(path + "/" + f)
-	
-	if obj_files.size() > 0:
-		_generate_scene_from_objs(path, obj_files)
-	
+		if !f.ends_with(".obj"):
+			continue
+		obj_files.append(source_dir + "/" + f)
+
+	var rel_path = source_dir.trim_prefix(source_dir_base)
+	var target_dir = save_dir_base.path_join(rel_path)
+
+	if !obj_files.is_empty():
+		_generate_scene_from_objs(target_dir, obj_files)
+
 	for d in dirs:
-		_process_dir(path + "/" + d)
+		_process_dir(source_dir + "/" + d, save_dir)
+
+
 
 
 func _generate_scene_from_objs(path:String, obj_files:Array[String]) -> void:
@@ -39,16 +46,21 @@ func _generate_scene_from_objs(path:String, obj_files:Array[String]) -> void:
 
 		# use filename instead of mesh name
 		var mesh_name = obj_path.get_file().get_basename()
-		var mesh_res_path = path + "/" + mesh_name + ".res"
+		var mesh_res_path = path + "/" + mesh_name + ".tres"
+		DirAccess.make_dir_recursive_absolute(path)
+		var mat = StandardMaterial3D.new()
+		mat.albedo_texture = albedo_texture
+		mesh.surface_set_material(0,mat)
+		
 		ResourceSaver.save(mesh, mesh_res_path)
 
 		var mesh_node = MeshInstance3D.new()
-		mesh_node.mesh = load(mesh_res_path)
+		mesh_node.mesh = mesh
 		mesh_node.name = mesh_name
 		mesh_node.rotation.y = deg_to_rad(30)
 
 		var body = StaticBody3D.new()
-		body.name = mesh_name + "_body"
+		body.name = mesh_name
 		
 		root.add_child(body)
 		body.add_child(mesh_node)
@@ -60,9 +72,9 @@ func _generate_scene_from_objs(path:String, obj_files:Array[String]) -> void:
 		
 		_save_child_scene(path, body)
 
-	var packed = PackedScene.new()
-	packed.pack(root)
-	ResourceSaver.save(packed, path + "/" + folder_name + ".tscn")
+	#var packed = PackedScene.new()
+	#packed.pack(root)
+	#ResourceSaver.save(packed, path + "/" + folder_name + ".tscn")
 
 
 
@@ -81,6 +93,7 @@ func _add_convex_collisions(body:StaticBody3D, mesh:Mesh, root:Node) -> void:
 
 
 func _save_child_scene(path:String, node:Node) -> void:
+	#DirAccess.make_dir_recursive_absolute(path)
 	var temp = node.duplicate()
 	_set_ownership_recursive(temp, temp) # temporarily set ownership to temp’s children
 	temp.owner = null # prevent self-ownership before packing
@@ -89,10 +102,10 @@ func _save_child_scene(path:String, node:Node) -> void:
 	ResourceSaver.save(packed, path + "/" + node.name + ".tscn")
 	temp.free()
 
-func _set_ownership_recursive(node:Node, owner:Node) -> void:
+func _set_ownership_recursive(node:Node, o:Node) -> void:
 	for c in node.get_children():
-		c.owner = owner
-		_set_ownership_recursive(c, owner)
+		c.owner = o
+		_set_ownership_recursive(c, o)
 
 func texture_res(path: String = "res://assets/kaykit_medieval_hexagon_pack/") -> void:
 	# Process all .res files in this folder

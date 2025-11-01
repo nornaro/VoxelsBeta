@@ -14,6 +14,7 @@ func get_folder_dict(path:String = "res://assets/kaykit_medieval_hexagon_pack/")
 		for groupname in DirAccess.get_directories_at(subpath):
 			var full_path := subpath.path_join(groupname)
 			result[groupname] = full_path
+			print("FP: ",full_path)
 	
 	for key in result.keys():
 		var instance := GridContainer.new()
@@ -23,7 +24,7 @@ func get_folder_dict(path:String = "res://assets/kaykit_medieval_hexagon_pack/")
 		for filename in DirAccess.get_files_at(result[key]):
 			var filepath :String = result[key] + "/" + filename
 			
-			if !filename.ends_with(".res"):
+			if !filename.ends_with(".tres"):
 				continue
 			if !FileAccess.file_exists(filepath):
 				continue
@@ -45,7 +46,7 @@ func get_folder_dict(path:String = "res://assets/kaykit_medieval_hexagon_pack/")
 			item.name = filename.get_basename()
 			item.tooltip_text = filepath
 			instance.add_child(item)
-			filepath = filepath.replace(".res",".tscn")
+			filepath = filepath.replace(".tres",".tscn")
 			if !FileAccess.file_exists(filepath):
 				print("File missing: ",filepath)
 				continue

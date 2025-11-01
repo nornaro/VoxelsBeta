@@ -41,6 +41,7 @@ func _ready() -> void:
 		selection_indicator = $"../../Control/TextureRect"
 
 func _process(_delta: float) -> void:
+	general_input()
 	if Engine.is_editor_hint():
 		if EditorInterface.get_selection().get_selected_nodes().is_empty():
 			return
@@ -52,6 +53,14 @@ func _process(_delta: float) -> void:
 	mode_select()
 	setup_raycast()
 
+func general_input():
+	if !selected:
+		return
+	if Input.is_action_just_pressed("ui_home"):
+		selected.rotation.y -= deg_to_rad(30)
+	if Input.is_action_just_pressed("ui_end"):
+		selected.rotation.y += deg_to_rad(30)
+
 func editor_only_input() -> void:
 	if !selected:
 		return
@@ -60,10 +69,6 @@ func editor_only_input() -> void:
 		return
 	selected.global_position.x = WorldMap.map_xz_dict[pointer].x
 	selected.global_position.z = WorldMap.map_xz_dict[pointer].z
-	if Input.is_action_just_pressed("ui_home"):
-		selected.rotation.y -= deg_to_rad(30)
-	if Input.is_action_just_pressed("ui_end"):
-		selected.rotation.y += deg_to_rad(30)
 		
 func mode_select() -> void:
 	if Input.is_action_just_pressed("Build"):
@@ -214,12 +219,13 @@ func hide_cursor(cursor : Node3D):
 
 func _input(event: InputEvent) -> void:
 	if event is not InputEventMouseButton:
-		return 
-	print(event)
+		return
 	if event.button_index != MouseButton.MOUSE_BUTTON_RIGHT:
 		return
 	var res = load("res://assets/Meshes/hex_cursor.res")
 	var mesh_instance:MeshInstance3D = get_tree().get_first_node_in_group("hexcursor")
+	mesh_instance.get_parent().position.y = 0
+	mesh_instance.rotation.y = 0
 	mesh_instance.mesh = res
 	mesh_instance.set_surface_override_material(0, load("res://assets/Materials/hex_cursor_mat.tres"))
 	var mat = mesh_instance.get_active_material(0)
@@ -227,3 +233,5 @@ func _input(event: InputEvent) -> void:
 	mat.albedo_color.a = 0.75
 	mat.force_transparent = true
 	mat.blend_mode = BaseMaterial3D.BLEND_MODE_MIX
+	selected = null
+	

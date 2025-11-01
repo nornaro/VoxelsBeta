@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://d3un3umupp4l7"]
+
+[ext_resource type="ArrayMesh" uid="uid://ojphm3lbxna2" path="res://addons/kaykit_medieval_hexagon_pack/Assets/obj/tiles/base/hex_grass_bottom.obj" id="1_afob4"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_afob4"]
+points = PackedVector3Array(0, -1, -1.1547, 0, 0, -1.1547, -1, -1, -0.57735, -1, 0, -0.57735, 0, -1, 1.1547, 1, 0, -0.57735, 1, -1, -0.57735, 0, 0, 1.1547, -1, -1, -0.57735, -1, 0, -0.57735, 0, -1, 1.1547, 0, 0, 1.1547, 1, -1, -0.57735, 1, 0, -0.57735, 0, -1, -1.1547, 0, 0, -1.1547, 0, 0, -1.1547, 1, 0, -0.57735, -1, 0, -0.57735, 0, 0, 1.1547, 0, -1, 1.1547, 1, -1, -0.57735, -1, -1, -0.57735, 0, -1, -1.1547, 1, -1, 0.57735, 1, 0, 0.57735, -1, -1, 0.57735, -1, 0, 0.57735, 1, -1, 0.57735, 1, 0, 0.57735, -1, -1, 0.57735, -1, 0, 0.57735, -1, 0, 0.57735, 1, 0, 0.57735, 1, -1, 0.57735, -1, -1, 0.57735)
+
+[node name="hex_grass_bottom" type="StaticBody3D"]
+
+[node name="hex_grass_bottom" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.8660254, 0, 0.5, 0, 1, 0, -0.5, 0, 0.8660254, 0, 0, 0)
+mesh = ExtResource("1_afob4")
+
+[node name="Collision0" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.8660254, 0, 0.5, 0, 1, 0, -0.5, 0, 0.8660254, 0, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_afob4")

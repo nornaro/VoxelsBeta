@@ -1,7 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dsni7nsfgjif2"]
 
-[ext_resource type="Script" uid="uid://ccx5vst87b3so" path="res://scenes/make_it_sceen.gd" id="1_hvmbq"]
+[ext_resource type="Script" uid="uid://byvluldi7dbc5" path="res://scenes/make_it_sceen.gd" id="1_hvmbq"]
 
 [node name="make_it_sceen" type="Node3D"]
 script = ExtResource("1_hvmbq")
-save_dir_base = ""

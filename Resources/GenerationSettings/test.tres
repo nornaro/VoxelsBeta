@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="GenerationSettings" load_steps=4 format=3 uid="uid://ckxwwmtqxkujw"]
 
-[ext_resource type="Script" uid="uid://0k8jgfy8cqfx" path="res://scripts/WorldGen/generation_settings.gd" id="1_eiv65"]
+[ext_resource type="Script" uid="uid://pbmpehonhc3" path="res://scripts/WorldGen/generation_settings.gd" id="1_eiv65"]
 [ext_resource type="Material" uid="uid://dcw7nje4jt2wj" path="res://assets/Materials/testmat.tres" id="1_x67sk"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_fe1qq"]
-seed = -1895311336
+seed = 1907214488
 fractal_lacunarity = 1.735
 cellular_distance_function = 2
 cellular_return_type = 6

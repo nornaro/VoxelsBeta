@@ -8,3 +8,11 @@ placed Tiles, Objects/Buildings etc.
 
 Thank You for watching!
 """
+
+
+"""
+2DO
+
+select, place multiple, delete
+check save
+"""
