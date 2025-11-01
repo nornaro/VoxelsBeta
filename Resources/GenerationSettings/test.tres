@@ -4,7 +4,7 @@
 [ext_resource type="Material" uid="uid://dcw7nje4jt2wj" path="res://assets/Materials/testmat.tres" id="1_x67sk"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_fe1qq"]
-seed = -309464506
+seed = -1895311336
 fractal_lacunarity = 1.735
 cellular_distance_function = 2
 cellular_return_type = 6
@@ -13,7 +13,6 @@ domain_warp_fractal_type = 2
 
 [resource]
 script = ExtResource("1_eiv65")
-radius = 0
 noise = SubResource("FastNoiseLite_fe1qq")
 voxel_size = 1.15
 material = ExtResource("1_x67sk")

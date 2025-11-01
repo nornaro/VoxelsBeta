@@ -15,7 +15,7 @@ enum shape {HEXAGONAL, RECTANGULAR, DIAMOND, CIRCLE}
 @export_range(0.0, 1.0) var ground_to_air_ratio : float = 0.5
 @export var flat_buffer = true
 #@export var debug : bool = false
-@export var noise : FastNoiseLite
+@export var noise : FastNoiseLite = FastNoiseLite.new()
 @export_range(0.0, 1.0) var variance = 0.0
 
 @export_category("Voxel")
@@ -23,7 +23,7 @@ enum shape {HEXAGONAL, RECTANGULAR, DIAMOND, CIRCLE}
 @export_range(0.5, 10) var voxel_height : float = 1 #height of voxels
 ## -1 For flat-shading. 0 for smooth
 @export_range(-1, 0, 1.0) var shading : int = -1
-@export var material : Material
+@export var material : StandardMaterial3D = StandardMaterial3D.new()
 @export var draw_bottom = false
 @export var solid_first_layer = true
 
@@ -31,6 +31,9 @@ enum shape {HEXAGONAL, RECTANGULAR, DIAMOND, CIRCLE}
 @export var spawn_villages_and_units = true
 @export var map_edge_buffer = 2
 @export_range(1, 99) var spacing = 6
+
+func _init() -> void:
+	material.albedo_texture = load("res://assets/Materials/textureatlas.png")
 
 func dump() -> Dictionary:
 	var vars := {}

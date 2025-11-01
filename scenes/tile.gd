@@ -2,6 +2,8 @@
 extends Node3D
 
 func load_component(folder:String):
+	for child in get_children():
+		child.queue_free()
 	for file:String in DirAccess.get_files_at(folder):
 		if !file.contains(".tres"):
 			continue

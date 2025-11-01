@@ -1,18 +1,16 @@
 @tool
 extends Button
 
-@export var settings_res: Resource = preload("res://scripts/WorldGen/generation_settings.gd").new()
+@export var settings_res: GenerationSettings = preload("res://scripts/WorldGen/generation_settings.gd").new()
 var property_type := {}
 @onready var panel: GridContainer = %SettingsPanel
 
 func _ready() -> void:
-	for child in %SettingsPanel.get_children():
-		child.queue_free()
 	_build_settings_ui(settings_res)
 
 func _build_settings_ui(res: Resource) -> void:
-	for child in get_children():
-		child.queue_free() # remove any old content
+	for child in %SettingsPanel.get_children():
+		child.queue_free()
 	var process = false
 	for prop:Dictionary in res.get_property_list():
 		if prop.name.to_lower() == "script":
@@ -94,3 +92,12 @@ func update_value(prop_name,new_value):
 
 func _on_pressed() -> void:
 	%SettingsPanel.visible = button_pressed
+
+
+func _on_default_pressed() -> void:
+	var default_settings:GenerationSettings = load("res://Resources/GenerationSettings/default.tres").get_script().new()
+	%WorldGenerator.settings = default_settings
+	%WorldGenerator.settings.map_seed = default_settings.map_seed
+	#%WorldGenerator.load_map()
+	%Settings._ready()
+	_build_settings_ui(default_settings)

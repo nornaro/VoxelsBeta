@@ -2,9 +2,8 @@
 extends Button
 
 @export_tool_button("Load") var l =  _on_pressed
-#@export var settings = GenerationSettings
 var save_dir := "res://save/"
-@export_dir() var d:String
+@export_dir() var settings:String
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
@@ -13,7 +12,7 @@ func _ready() -> void:
 
 func _on_pressed() -> void:
 	if Engine.is_editor_hint():
-		save_dir = d + "/"
+		save_dir = settings + "/"
 	if !%LoadList.visible and !Engine.is_editor_hint():
 		%LoadList.clear()
 		for dir:String in DirAccess.get_directories_at(save_dir):
@@ -27,8 +26,8 @@ func _on_pressed() -> void:
 func iterate_components() -> void:
 	if Engine.is_editor_hint():
 		for component in %BuildNodes.get_children():
-			print(d+"/"+component.name+"/")
-			component.load_component(d+"/"+component.name+"/")
+			print(settings+"/"+component.name+"/")
+			component.load_component(settings+"/"+component.name+"/")
 			continue
 	for component in %BuildNodes.get_children():
 		load_component(component)
@@ -44,10 +43,3 @@ func load_component(component:Node):
 	var selected:int = %LoadList.get_selected_items()[0]
 	var folder = save_dir + "/" + %LoadList.get_item_text(selected) + "/"+component.name+"/"
 	component.load_component(folder)
-
-func _load_in_editor() -> void:
-	print("T")
-	#if !Engine.is_editor_hint():
-		#return
-	#%WorldGenerator.settings = settings
-	#%WorldGenerator.load_map()

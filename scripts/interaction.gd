@@ -211,3 +211,19 @@ func hide_cursor(cursor : Node3D):
 	if cursor:
 		#move_cursor(cursor, Vector3.ZERO, -10)
 		cursor.visible = false
+
+func _input(event: InputEvent) -> void:
+	if event is not InputEventMouseButton:
+		return 
+	print(event)
+	if event.button_index != MouseButton.MOUSE_BUTTON_RIGHT:
+		return
+	var res = load("res://assets/Meshes/hex_cursor.res")
+	var mesh_instance:MeshInstance3D = get_tree().get_first_node_in_group("hexcursor")
+	mesh_instance.mesh = res
+	mesh_instance.set_surface_override_material(0, load("res://assets/Materials/hex_cursor_mat.tres"))
+	var mat = mesh_instance.get_active_material(0)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color.a = 0.75
+	mat.force_transparent = true
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_MIX

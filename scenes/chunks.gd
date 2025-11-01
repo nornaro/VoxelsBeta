@@ -1,13 +1,13 @@
 @tool
 extends Node3D
 
+
 func load_component(folder:String):
 	for file:String in DirAccess.get_files_at(folder):
 		if !file.contains(".tres"):
 			continue
 		%WorldGenerator.settings = load(folder + file)
 		%WorldGenerator.settings.map_seed = file.split(".")[0]
-		print("seed: ",%WorldGenerator.settings.map_seed)
 		%WorldGenerator.load_map()
 		%Settings._ready()
 
@@ -18,4 +18,4 @@ func save_component(folder:String):
 		%Save.save(folder + str(child.get_meta("seed")) +".scn", child)
 		%WorldGenerator.settings.map_seed = child.get_meta("seed")
 		%WorldGenerator.settings.noise.seed = child.get_meta("seed")
-		%WorldGenerator.settings.save_settings(folder + str(child.get_meta("seed")) +".tres")
+		%WorldGenerator.settings.save_settings(folder+name + str(child.get_meta("seed")) +".tres")
