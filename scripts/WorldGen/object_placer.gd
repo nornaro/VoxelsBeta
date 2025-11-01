@@ -85,7 +85,7 @@ func load_component(folder:String):
 	for file:String in DirAccess.get_files_at(folder):
 		if !file.contains(".tscn"):
 			continue
-		var instance:Node = load(folder).instantiate()
+		var instance:Node = load(folder+file).instantiate()
 		add_child(instance)
 
 func save_component(folder:String):

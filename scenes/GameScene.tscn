@@ -328,6 +328,11 @@ texture = ExtResource("13_w22tq")
 expand_mode = 3
 stretch_mode = 4
 
+[node name="TextureButton" type="TextureButton" parent="Control/TextureRect"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
 [node name="InventoryContainer" type="TabContainer" parent="Control"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 240)

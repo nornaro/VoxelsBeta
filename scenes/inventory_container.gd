@@ -45,6 +45,9 @@ func get_folder_dict(path:String = "res://assets/kaykit_medieval_hexagon_pack/")
 			item.texture_normal = tex
 			item.name = filename.get_basename()
 			item.tooltip_text = filepath
+			item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			item.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT
+			#item.ignore_texture_size = true
 			instance.add_child(item)
 			filepath = filepath.replace(".tres",".tscn")
 			if !FileAccess.file_exists(filepath):
