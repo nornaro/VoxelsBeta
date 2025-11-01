@@ -3,6 +3,7 @@ extends Node3D
 
 @export_tool_button("Generate") var generate = generate_from_obj
 @export_tool_button("Texture") var texture = texture_res
+@export_tool_button("MeshUp") var mup = mesh_up
 @export var source_dir_base:String = "res://addons/kaykit_medieval_hexagon_pack/Assets/obj"
 @export var save_dir_base:String = "res://assets/kaykit_medieval_hexagon_pack"
 @export var albedo_texture = preload("res://Textures/hexagons_medieval.png")
@@ -10,7 +11,22 @@ extends Node3D
 func generate_from_obj() -> void:
 	_process_dir(source_dir_base,save_dir_base)
 	return
+	
+func mesh_up():
+	mesh_update()
+	
+func mesh_update(save_dir:String = "res://assets/kaykit_medieval_hexagon_pack") -> void:
+	var dirs = DirAccess.get_directories_at(save_dir)
+	var files = DirAccess.get_files_at(save_dir)
 
+	for f in files:
+		if f.ends_with(".tscn"):
+			replace_mesh_with_tres(save_dir+f)
+	print(files)
+
+	for d in dirs:
+		mesh_update(save_dir + "/" + d)
+	
 
 func _process_dir(source_dir:String, save_dir:String) -> void:
 	var dirs = DirAccess.get_directories_at(source_dir)
@@ -123,3 +139,16 @@ func texture_res(path: String = "res://assets/kaykit_medieval_hexagon_pack/") ->
 	# Recurse into subdirectories
 	for dir in DirAccess.get_directories_at(path):
 		texture_res(path + "/" + dir)
+
+
+func replace_mesh_with_tres(scene_path:String) -> void:
+	var scene = ResourceLoader.load(scene_path).instantiate()
+	print(scene)
+	for child in scene.get_children():
+		if child is MeshInstance3D:
+			child.mesh = load(scene_path.get_basename() + ".tres")
+	var packed_new = PackedScene.new()
+	packed_new.pack(scene)
+	ResourceSaver.save(packed_new, scene_path)
+	print("Updated meshes to .tres in:", scene_path)
+	scene.free()

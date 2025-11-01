@@ -4,3 +4,4 @@
 
 [node name="make_it_sceen" type="Node3D"]
 script = ExtResource("1_hvmbq")
+source_dir_base = "res://assets/kaykit_medieval_hexagon_pack"

@@ -15,7 +15,7 @@
 [ext_resource type="Script" uid="uid://bi7llx54jqppw" path="res://scenes/save.gd" id="13_kxqg4"]
 [ext_resource type="Texture2D" uid="uid://cctpnojcm20kn" path="res://assets/selectsprite.png" id="13_w22tq"]
 [ext_resource type="Script" uid="uid://pbmpehonhc3" path="res://scripts/WorldGen/generation_settings.gd" id="14_6nmf6"]
-[ext_resource type="Script" uid="uid://oj4qppg86muh" path="res://scenes/load.gd" id="14_21xg8"]
+[ext_resource type="Script" uid="uid://uikctw0fnd7k" path="res://scenes/load.gd" id="14_21xg8"]
 [ext_resource type="Texture2D" uid="uid://bi8k3r3hpiva8" path="res://assets/Materials/textureatlas.png" id="14_lpvha"]
 [ext_resource type="Script" uid="uid://ce0k0wwj2p8i3" path="res://scenes/min.gd" id="14_qitmq"]
 [ext_resource type="Script" uid="uid://cnqhqt47jadni" path="res://scenes/plu.gd" id="15_kxqg4"]
@@ -24,7 +24,7 @@
 [ext_resource type="PackedScene" uid="uid://dxs306fmmgkw8" path="res://scenes/Cursors/hexagon_cursor_sb.tscn" id="18_icif4"]
 [ext_resource type="Script" uid="uid://su6g6v6i32fa" path="res://scenes/building.gd" id="19_iaegw"]
 [ext_resource type="Script" uid="uid://cxucxfmkw4akk" path="res://scenes/tile.gd" id="20_2gh7q"]
-[ext_resource type="Script" uid="uid://cehlo0bvjk0e4" path="res://scenes/inventory_container.gd" id="25_f2kej"]
+[ext_resource type="Script" uid="uid://prabtdkambwb" path="res://scenes/inventory_container.gd" id="25_f2kej"]
 
 [sub_resource type="GDScript" id="GDScript_iaegw"]
 
@@ -210,12 +210,12 @@ settings = "res://save/s1"
 unique_name_in_owner = true
 layout_mode = 2
 bbcode_enabled = true
-text = "[b]Calculate Map Positions -- [/b][i]13.0ms
+text = "[b]Calculate Map Positions -- [/b][i]59.0ms
 [/i][b]Processing Voxels total -- [/b][i]1ms
 [/i][b]Build voxels -- [/b][i]2ms
-[/i][b]Create Voxel Mesh -- [/b][i]6ms
+[/i][b]Create Voxel Mesh -- [/b][i]7ms
 [/i][b]Spawn Villages -- [/b][i]7ms
-[/i][b]Total completion time: [/b][i]29.0ms[/i]"
+[/i][b]Total completion time: [/b][i]76.0ms[/i]"
 fit_content = true
 scroll_active = false
 autowrap_mode = 0
@@ -345,10 +345,6 @@ grow_horizontal = 2
 grow_vertical = 0
 script = ExtResource("25_f2kej")
 
-[connection signal="input_event" from="Builder/Interaction_tracker/hexagon_cursor" to="Builder/Interaction_tracker/hexagon_cursor" method="_on_input_event"]
-[connection signal="mouse_entered" from="Builder/Interaction_tracker/hexagon_cursor" to="Builder/Interaction_tracker/hexagon_cursor" method="_on_mouse_entered"]
-[connection signal="property_list_changed" from="Builder/Interaction_tracker/hexagon_cursor" to="Builder/Interaction_tracker/hexagon_cursor" method="_on_property_list_changed"]
-[connection signal="visibility_changed" from="Builder/Interaction_tracker/hexagon_cursor" to="Builder/Interaction_tracker/hexagon_cursor" method="_on_visibility_changed"]
 [connection signal="pressed" from="Control/HBoxContainer/VBoxContainer/Gen/Generate" to="Builder/WorldGenerator" method="_ready"]
 [connection signal="pressed" from="Control/HBoxContainer/VBoxContainer/Gen/Settings" to="Control/HBoxContainer/VBoxContainer/Gen/Settings" method="_on_pressed"]
 [connection signal="pressed" from="Control/HBoxContainer/Control/VBoxContainer/Default" to="Control/HBoxContainer/VBoxContainer/Gen/Settings" method="_on_default_pressed"]

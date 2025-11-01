@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://bhrl03wbvd36w"]
+[gd_scene load_steps=3 format=3 ]
 
-[ext_resource type="ArrayMesh" uid="uid://dtk2h488qucdf" path="res://addons/kaykit_medieval_hexagon_pack/Assets/obj/tiles/base/hex_water.obj" id="1_hjcv3"]
+[ext_resource type="ArrayMesh" path="res://assets/kaykit_medieval_hexagon_pack/tiles/base/hex_water.tres" id="1_hjcv3"]
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_hjcv3"]
 points = PackedVector3Array(0, -1, -1.1547, 0, -0.2, -1.1547, -1, -1, 0.57735, -1, -0.2, 0.57735, 0, -1, 1.1547, 0, -0.2, 1.1547, 1, -1, 0.57735, 1, -0.2, 0.57735, -1, -1, 0.57735, -1, -0.2, 0.57735, 0, -1, 1.1547, 0, -0.2, 1.1547, 1, -1, 0.57735, 1, -0.2, 0.57735, 0, -1, -1.1547, 0, -0.2, -1.1547, 0, -1, 1.1547, 1, -1, 0.57735, -1, -1, 0.57735, 0, -1, -1.1547, 0, -0.2, 1.1547, 0, -0.2, -1.1547, 1, -0.2, 0.57735, -1, -0.2, 0.57735, -1, -1, -0.57735, -1, -0.2, -0.57735, 1, -1, -0.57735, 1, -0.2, -0.57735, -1, -1, -0.57735, -1, -0.2, -0.57735, 1, -1, -0.57735, 1, -0.2, -0.57735, 0, -1, 0, 1, -1, -0.57735, -1, -1, -0.57735, 1, -0.2, -0.57735, 0, -0.2, 0, -1, -0.2, -0.57735)

@@ -17,6 +17,5 @@ func _on_pressed():
 	var mat = mesh_instance.get_active_material(0)
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.albedo_color.a = 0.75
-	mat.force_transparent = true
 	mat.blend_mode = BaseMaterial3D.BLEND_MODE_MIX
 	get_tree().get_first_node_in_group("Interaction_tracker").selected = mesh_instance.get_parent()

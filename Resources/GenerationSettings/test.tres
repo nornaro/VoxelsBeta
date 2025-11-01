@@ -4,7 +4,7 @@
 [ext_resource type="Material" uid="uid://dcw7nje4jt2wj" path="res://assets/Materials/testmat.tres" id="1_x67sk"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_fe1qq"]
-seed = 1907214488
+seed = 1629862931
 fractal_lacunarity = 1.735
 cellular_distance_function = 2
 cellular_return_type = 6

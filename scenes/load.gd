@@ -26,11 +26,9 @@ func _on_pressed() -> void:
 func iterate_components() -> void:
 	if Engine.is_editor_hint():
 		for component in %Builder.get_children():
-			print(settings+"/"+component.name+"/")
 			component.load_component(settings+"/"+component.name+"/")
 			continue
 	for component in %Builder.get_children():
-		print(component)
 		if !component.has_method("load_component"):
 			continue
 		load_component(component)

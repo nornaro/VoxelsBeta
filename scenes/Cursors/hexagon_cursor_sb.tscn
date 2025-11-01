@@ -1,6 +1,6 @@
 [gd_scene load_steps=11 format=4 uid="uid://dxs306fmmgkw8"]
 
-[ext_resource type="Script" uid="uid://36ymdt5di4f6" path="res://scenes/Cursors/hexagon_cursor_sb.gd" id="2_bbsu3"]
+[ext_resource type="Script" uid="uid://xdgs844ecrnp" path="res://scenes/Cursors/hexagon_cursor_sb.gd" id="2_bbsu3"]
 [ext_resource type="Material" uid="uid://dmi1l2yaecsqy" path="res://assets/Materials/hex_cursor_mat.tres" id="2_vrixp"]
 [ext_resource type="PackedScene" uid="uid://cs65a7b6fwiqr" path="res://assets/voxel_cursor.tscn" id="3_l4qoy"]
 
@@ -108,8 +108,3 @@ libraries = {
 autoplay = "idle"
 
 [node name="voxel_cursor2" parent="." instance=ExtResource("3_l4qoy")]
-
-[connection signal="input_event" from="." to="." method="_on_input_event"]
-[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
-[connection signal="property_list_changed" from="." to="." method="_on_property_list_changed"]
-[connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]

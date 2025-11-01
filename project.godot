@@ -26,13 +26,8 @@ Scenelib="*res://scripts/Global/scenelib.gd"
 
 window/size/viewport_width=1600
 window/size/viewport_height=900
-window/size/resizable=false
 window/stretch/mode="canvas_items"
 window/stretch/aspect="ignore"
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/scene_texture/plugin.cfg")
 
 [filesystem]
 
@@ -122,9 +117,4 @@ limits/message_queue/max_size_mb=320
 
 [rendering]
 
-rendering_device/staging_buffer/max_size_mb=12800
-rendering_device/vulkan/max_descriptors_per_pool=6400
-rendering_device/d3d12/max_resource_descriptors_per_frame=65536
-rendering_device/d3d12/max_sampler_descriptors_per_frame=2048
-rendering_device/d3d12/max_misc_descriptors_per_frame=4096
 anti_aliasing/quality/msaa_3d=1
