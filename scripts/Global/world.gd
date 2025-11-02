@@ -14,9 +14,9 @@ var surface_layer: Dictionary[Vector3i, Voxel] = {}
 func set_map(all_voxels, top_voxels):
 	map_as_dict.clear()
 	map_xz_dict.clear()
-	for voxel : Voxel in all_voxels.values():
+	for voxel : Voxel in all_voxels:
 		map_as_dict[Vector3i(voxel.grid_position_xyz)] = voxel
-	for t_voxel : Voxel in top_voxels.values():
+	for t_voxel : Voxel in top_voxels:
 		surface_layer[Vector3i(t_voxel.grid_position_xyz)] = t_voxel
 		var intvector: Vector2i = Vector2i(
 			roundi(t_voxel.world_position.x),

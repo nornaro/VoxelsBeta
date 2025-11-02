@@ -7,7 +7,6 @@ class_name ObjectPlacer
 
 ## placeholder functionality for placing units onto the map
 func create_starting_units(count : int):
-	return
 	var safety_count = 0 #Add safety counter in case no valid tiles
 	## Test pathfinder
 	while count > 0 and safety_count < 50:
@@ -81,13 +80,12 @@ func clear_objects():
 
 
 func load_component(folder:String):
+	for child in get_children():
+		child.queue_free()
 	for file:String in DirAccess.get_files_at(folder):
 		if !file.contains(".tscn"):
 			continue
-		var instance:Node3D = load(folder+file).instantiate()
-		var script = "res://scripts/"+name.to_lower()+".gd"
-		if FileAccess.file_exists(script):
-			instance.set_script(load(script))
+		var instance:Node = load(folder+file).instantiate()
 		add_child(instance)
 
 func save_component(folder:String):

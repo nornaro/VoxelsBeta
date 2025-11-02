@@ -256,7 +256,6 @@ func highlight_unit(unit):
 func add_highlighted(h):
 	highlighted.clear()
 	highlighted.append(h)
-	print(highlighted)
 
 
 ## move cursor with optional height difference
@@ -284,23 +283,8 @@ func hide_cursor(cursor : Node3D):
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		if event.is_action_pressed("ui_text_delete"):
-			for item:Voxel in highlighted:
-				print("WG:",%WorldGenerator.vg.surface_voxels[item.grid_position_xyz])
-				WorldMap.map_as_dict.erase(item.grid_position_xyz)
-				WorldMap.map_pos_dict.erase(item.position)
-				WorldMap.map_xz_dict.erase(
-					Vector2i(
-					roundi(item.world_position.x),
-					roundi(item.world_position.z))
-				)
-				print(%WorldGenerator.vg.surface_voxels.keys().size(),":",%WorldGenerator.vg.map.keys().size())
-				%WorldGenerator.vg.surface_voxels.erase(item.grid_position_xyz)
-				%WorldGenerator.vg.map.erase(item.grid_position_xyz)
-				#print(%WorldGenerator.vg.surface_voxels[item.grid_position_xyz])
-				print(%WorldGenerator.vg.surface_voxels.keys().size(),"|",%WorldGenerator.vg.map.keys().size())
-				#%WorldGenerator.vg.process_voxels()
-				%WorldGenerator.generate_world(%WorldGenerator.vg.surface_voxels)
-				item.free()
+			for item in highlighted:
+				item.queue_free()
 			highlighted.clear()
 		return
 	if event is not InputEventMouseButton:

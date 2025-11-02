@@ -6,8 +6,8 @@ var settings : GenerationSettings
 var noise_range := Vector2(99999, -99999) 
 
 ## Main entry point, Get all positions to spawn tiles on
-func calculate_map_positions() -> Dictionary[Vector3i, Voxel]:
-	var voxels :  Dictionary[Vector3i, Voxel]
+func calculate_map_positions() -> Array[Voxel]:
+	var voxels : Array[Voxel]
 	settings = WorldMap.world_settings
 
 	## Diamond and Circle also use the rectangular bounds. They carve our their shape from that rectangle
@@ -34,8 +34,8 @@ func calculate_map_positions() -> Dictionary[Vector3i, Voxel]:
 	return voxels
 
 
-func generate_map(bounds: Callable, stagger: bool, buffer_filter: Callable, shape_filter: Callable = Callable()) ->  Dictionary[Vector3i, Voxel]:
-	var voxel_dict:  Dictionary[Vector3i, Voxel] = {}
+func generate_map(bounds: Callable, stagger: bool, buffer_filter: Callable, shape_filter: Callable = Callable()) -> Array[Voxel]:
+	var voxel_array: Array[Voxel] = []
 	for c in bounds.call():
 		for r in bounds.call(c):
 			for h in range(settings.max_height):
@@ -44,8 +44,8 @@ func generate_map(bounds: Callable, stagger: bool, buffer_filter: Callable, shap
 				var pos = Vector3(c, h, r) #column, height, row
 				var voxel = generate_voxel(pos, stagger)
 				modify_voxel(voxel, buffer_filter) #Hills, ocean, buffer
-				voxel_dict[voxel.grid_position_xyz] = voxel
-	return voxel_dict
+				voxel_array.append(voxel)
+	return voxel_array
 
 
 func generate_voxel(pos, stagger) -> Voxel:

@@ -12,26 +12,26 @@ extends Node
 
 #UI
 @onready var label: RichTextLabel = %RTL
-var vg = VoxelGenerator.new()
+
 var starttime:int
 var interval:Dictionary
 
 ## Starting point: Generate a random seed, create the tiles, place POI's
 func _ready() -> void:
 	init_seed()
-	for child in %Builder.get_children():
-		if !child.has_method("clear_objects"):
-			continue
-		child.clear_objects()
 	load_map()
-	call_deferred("place_objects")
 	
 func load_map() -> void:
 	WorldMap.clear_map()
 	WorldMap.world_settings = settings
+	var children = chunks.get_children() + get_children()
+	for c in children:
+		c.free()
+	object_placer.clear_objects()
 	starttime = Time.get_ticks_msec()
 	interval = {"Start of Generation!" : starttime}
 	call_deferred("generate_world")
+	call_deferred("place_objects")
 	#%Settings._ready()
 	#Debugger.call_deferred("draw_voxel_dictionary",WorldMap.surface_layer)
 
@@ -44,14 +44,13 @@ func init_seed():
 
 
 ## Start of world_generation, time each step
-func generate_world(voxels: Dictionary[Vector3i, Voxel] = {}):
+func generate_world():
 	## Get all positions through the gridmapper
 	var mapper = GridMapper.new()
-	if voxels.is_empty():
-		voxels = mapper.calculate_map_positions()
+	var voxels = mapper.calculate_map_positions()
 	interval["Calculate Map Positions -- "] = Time.get_ticks_msec()
 
-
+	var vg = VoxelGenerator.new()
 	var new_chunk = vg.generate_chunk(voxels, interval)
 	chunks.add_child(new_chunk)
 	new_chunk.init_chunk()
