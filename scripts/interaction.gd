@@ -18,8 +18,11 @@ var unit_moves : Array[Voxel]
 var voxel_cursor : StaticBody3D
 var unit_cursor : Node3D
 var initialized = false
-var selected:Node3D
-
+var selected
+@onready var default_hexcursor_mat = preload("res://assets/Materials/hex_cursor_mat.tres")
+@onready var default_hexcursor_res = preload("res://assets/Meshes/hex_cursor.res")
+var key_pressed: Dictionary = {}
+var highlighted:Array
 
 func init():
 	if initialized:
@@ -38,38 +41,74 @@ func init():
 	initialized = true
 
 func _ready() -> void:
-		selection_indicator = $"../../Control/TextureRect"
+	selection_indicator = $"../../Control/TextureRect"
 
 func _process(_delta: float) -> void:
-	general_input()
 	if Engine.is_editor_hint():
 		if EditorInterface.get_selection().get_selected_nodes().is_empty():
 			return
 		if EditorInterface.get_selection().get_selected_nodes()[0] is not CollisionObject3D:
 			return
-		selected = EditorInterface.get_selection().get_selected_nodes()[0] 
-		editor_only_input()
+		selected = EditorInterface.get_selection().get_selected_nodes()[0]
+		editor_input()
 		return
+	runtime_input()
 	mode_select()
 	setup_raycast()
 
-func general_input():
+func runtime_input():
 	if !selected:
 		return
-	if Input.is_action_just_pressed("ui_home"):
-		selected.rotation.y -= deg_to_rad(30)
-	if Input.is_action_just_pressed("ui_end"):
-		selected.rotation.y += deg_to_rad(30)
+	if Input.is_key_pressed(KEY_SHIFT):
+		if is_key_just_pressed(KEY_A):
+			voxel_cursor.rotation.y -= deg_to_rad(30)
+		if is_key_just_pressed(KEY_D):
+			voxel_cursor.rotation.y += deg_to_rad(30)
+		if is_key_just_pressed(KEY_S):
+			voxel_cursor.position.y -= 1
+		if is_key_just_pressed(KEY_W):
+			voxel_cursor.position.y += 1
 
-func editor_only_input() -> void:
+func editor_input() -> void:
 	if !selected:
 		return
+	if Input.is_key_pressed(KEY_SHIFT):
+		if is_key_just_pressed(KEY_A):
+			selected.rotation.y -= deg_to_rad(30)
+		if is_key_just_pressed(KEY_D):
+			selected.rotation.y += deg_to_rad(30)
+		if is_key_just_pressed(KEY_S):
+			selected.position.y -= 1
+		if is_key_just_pressed(KEY_W):
+			selected.position.y += 1
 	var pointer = Vector2i( roundi(selected.global_position.x),roundi(selected.global_position.z))
 	if !WorldMap.map_xz_dict.has(pointer):
 		return
 	selected.global_position.x = WorldMap.map_xz_dict[pointer].x
 	selected.global_position.z = WorldMap.map_xz_dict[pointer].z
-		
+
+
+func is_key_just_pressed(key_code: Key) -> bool:
+	var is_pressed := Input.is_key_pressed(key_code)
+
+	if is_pressed and not key_pressed.get(key_code, false):
+		key_pressed[key_code] = true
+		return true
+
+	key_pressed[key_code] = is_pressed
+	return false
+
+
+func is_key_just_released(key_code: Key) -> bool:
+	var is_pressed := Input.is_key_pressed(key_code)
+
+	if not is_pressed and key_pressed.get(key_code, false):
+		key_pressed[key_code] = false
+		return true
+
+	key_pressed[key_code] = is_pressed
+	return false
+
 func mode_select() -> void:
 	if Input.is_action_just_pressed("Build"):
 		interact_mode = mode.BUILD
@@ -137,10 +176,13 @@ func deselect():
 
 func attempt_select(hit: HitData):
 	deselect()
-	if hit.object.is_in_group("voxels") or hit.object.get_parent().is_in_group("voxels"):
+	if (hit.object.is_in_group("Hex") or hit.object.get_parent().is_in_group("Hex")):
+		highlight_hex(hit)
+		return
+	if (hit.object.is_in_group("voxels") or hit.object.get_parent().is_in_group("voxels")):
 		highlight_voxel(hit)
 		return
-	if hit.object.is_in_group("units"):
+	if hit.object.is_in_group("units") or hit.object.is_in_group("Building"):
 		select_unit(hit.object)
 	elif hit.object.get_parent().is_in_group("units"):
 		select_unit(hit.object.get_parent())
@@ -170,7 +212,7 @@ func select_unit(unit : Unit):
 	hide_cursor(voxel_cursor)
 	if unit is Unit:
 		highlight_unit(unit)
-		unit_moves = p_finder.find_reachable_voxels(unit.occupied_voxel, unit)
+		#unit_moves = p_finder.find_reachable_voxels(unit.occupied_voxel, unit)
 		p_finder.highlight_voxel(unit_moves)
 
 
@@ -184,7 +226,23 @@ func highlight_voxel(hit: HitData): #hit is hit_data
 		print("Hit voxel is null!")
 		return
 	selected_voxel = hit_voxel
-	move_cursor(voxel_cursor, hit_voxel.world_position, 1)
+	add_highlighted(hit_voxel)
+	move_cursor(voxel_cursor, hit_voxel.world_position, hit_voxel.yoffset)
+	voxel_cursor.visible = true
+	voxel_cursor.top_level = true
+	animate_cursor(voxel_cursor)
+
+# We have clicked somewhere on a chunk of voxels
+func highlight_hex(hit: HitData): #hit is hit_data
+	selected_unit = null
+	hide_cursor(unit_cursor)
+	#var hit_chunk: = hit.object.get_parent()
+	var hit_hex : Voxel = hit.object
+	if hit_hex == null:
+		return
+	selected_voxel = hit_hex
+	add_highlighted(hit_hex)
+	move_cursor(voxel_cursor, hit_hex.global_position, hit_hex.yoffset)
 	voxel_cursor.visible = true
 	voxel_cursor.top_level = true
 	animate_cursor(voxel_cursor)
@@ -193,6 +251,12 @@ func highlight_voxel(hit: HitData): #hit is hit_data
 func highlight_unit(unit):
 	move_cursor(unit_cursor, unit.position)
 	unit_cursor.visible = true
+	add_highlighted(unit)
+	
+func add_highlighted(h):
+	highlighted.clear()
+	highlighted.append(h)
+	print(highlighted)
 
 
 ## move cursor with optional height difference
@@ -218,17 +282,64 @@ func hide_cursor(cursor : Node3D):
 		cursor.visible = false
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed:
+		if event.is_action_pressed("ui_text_delete"):
+			for item:Voxel in highlighted:
+				print("WG:",%WorldGenerator.vg.surface_voxels[item.grid_position_xyz])
+				WorldMap.map_as_dict.erase(item.grid_position_xyz)
+				WorldMap.map_pos_dict.erase(item.position)
+				WorldMap.map_xz_dict.erase(
+					Vector2i(
+					roundi(item.world_position.x),
+					roundi(item.world_position.z))
+				)
+				print(%WorldGenerator.vg.surface_voxels.keys().size(),":",%WorldGenerator.vg.map.keys().size())
+				%WorldGenerator.vg.surface_voxels.erase(item.grid_position_xyz)
+				%WorldGenerator.vg.map.erase(item.grid_position_xyz)
+				#print(%WorldGenerator.vg.surface_voxels[item.grid_position_xyz])
+				print(%WorldGenerator.vg.surface_voxels.keys().size(),"|",%WorldGenerator.vg.map.keys().size())
+				#%WorldGenerator.vg.process_voxels()
+				%WorldGenerator.generate_world(%WorldGenerator.vg.surface_voxels)
+				item.free()
+			highlighted.clear()
+		return
 	if event is not InputEventMouseButton:
 		return
-	if event.button_index != MouseButton.MOUSE_BUTTON_RIGHT:
+	if event is InputEventMouseButton and event.button_index == MouseButton.MOUSE_BUTTON_LEFT and event.double_click:
+		var parent:Node = %Other
+		for child in %Builder.get_children():
+			if !selected:
+				return
+			if selected.resource_path.to_lower().contains(child.name.to_lower()+"_"):
+				parent = child
+		var instance:Node3D = selected.instantiate()
+		var mat:StandardMaterial3D = instance.get_child(0).get_active_material(0).duplicate()
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+		mat.albedo_color.a = 1
+		instance.get_child(0).set_surface_override_material(0, mat)
+		instance.position = voxel_cursor.position
+		instance.rotation = voxel_cursor.rotation
+		instance.add_to_group(parent.name)
+		instance.name = str(instance.get_instance_id())
+		var script = "res://scripts/"+parent.name.to_lower()+".gd"
+		if FileAccess.file_exists(script):
+			instance.set_script(load(script))
+			if instance.has_method("place_unit"):
+				instance.place_unit()
+		parent.add_child(instance)
 		return
-	var res = load("res://assets/Meshes/hex_cursor.res")
-	var mesh_instance:MeshInstance3D = get_tree().get_first_node_in_group("hexcursor")
-	mesh_instance.get_parent().position.y = 0
-	mesh_instance.rotation.y = 0
-	mesh_instance.mesh = res
-	mesh_instance.set_surface_override_material(0, load("res://assets/Materials/hex_cursor_mat.tres"))
-	var mat = mesh_instance.get_active_material(0)
+	if event.button_index == MouseButton.MOUSE_BUTTON_RIGHT:
+		reset_cursor()
+		
+func reset_cursor():
+	var cursorres:MeshInstance3D = get_tree().get_first_node_in_group("hexcursorres")
+	voxel_cursor.rotation.y = 0
+	voxel_cursor.position.y = 0
+	cursorres.mesh = default_hexcursor_res
+	cursorres.set_surface_override_material(0, default_hexcursor_mat)
+	var mat = cursorres.get_active_material(0)
+	cursorres.rotation.y = 0
+	cursorres.position.y = 0
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.albedo_color.a = 0.75
 	mat.force_transparent = true

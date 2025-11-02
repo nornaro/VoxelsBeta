@@ -64,7 +64,7 @@ func get_folder_dict(path:String = "res://assets/kaykit_medieval_hexagon_pack/")
 
 
 			label.add_theme_font_override("normal_font", font)
-			label.add_theme_font_size_override("normal_font_size", font_size / 1.5)
+			label.add_theme_font_size_override("normal_font_size", round(font_size / 1.5))
 
 			label.autowrap_mode = TextServer.AUTOWRAP_WORD
 			label.anchor_bottom = 0.0

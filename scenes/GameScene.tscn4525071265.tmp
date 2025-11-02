@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://bbqxpsy3vniy8"]
+[gd_scene load_steps=39 format=3 uid="uid://bbqxpsy3vniy8"]
 
 [ext_resource type="Script" uid="uid://dx0cs2oxpyy47" path="res://scripts/camera_script.gd" id="1_1xefc"]
 [ext_resource type="Texture2D" uid="uid://dvbkqw12i4obk" path="res://assets/Materials/SkyBG.png" id="2_l7mlp"]
@@ -20,10 +20,15 @@
 [ext_resource type="Script" uid="uid://ce0k0wwj2p8i3" path="res://scenes/min.gd" id="14_qitmq"]
 [ext_resource type="Script" uid="uid://cnqhqt47jadni" path="res://scenes/plu.gd" id="15_kxqg4"]
 [ext_resource type="Script" uid="uid://druhvyabttkwp" path="res://scenes/settings.gd" id="16_6nmf6"]
+[ext_resource type="PackedScene" uid="uid://cckeuy7km1d3b" path="res://assets/kaykit_medieval_hexagon_pack/buildings/blue/building_archeryrange_blue.tscn" id="16_s4ole"]
+[ext_resource type="PackedScene" path="res://assets/kaykit_medieval_hexagon_pack/buildings/blue/building_blacksmith_blue.tscn" id="17_x1py8"]
 [ext_resource type="Script" uid="uid://bkjomtj7pse7o" path="res://scenes/chunks.gd" id="18_iaegw"]
 [ext_resource type="PackedScene" uid="uid://dxs306fmmgkw8" path="res://scenes/Cursors/hexagon_cursor_sb.tscn" id="18_icif4"]
+[ext_resource type="PackedScene" path="res://assets/kaykit_medieval_hexagon_pack/buildings/blue/building_lumbermill_blue.tscn" id="18_v23gc"]
 [ext_resource type="Script" uid="uid://su6g6v6i32fa" path="res://scenes/building.gd" id="19_iaegw"]
+[ext_resource type="PackedScene" path="res://assets/kaykit_medieval_hexagon_pack/buildings/blue/building_mine_blue.tscn" id="19_n7dut"]
 [ext_resource type="Script" uid="uid://cxucxfmkw4akk" path="res://scenes/tile.gd" id="20_2gh7q"]
+[ext_resource type="PackedScene" path="res://assets/kaykit_medieval_hexagon_pack/tiles/base/hex_grass.tscn" id="21_718su"]
 [ext_resource type="Script" uid="uid://prabtdkambwb" path="res://scenes/inventory_container.gd" id="25_f2kej"]
 
 [sub_resource type="GDScript" id="GDScript_iaegw"]
@@ -145,10 +150,31 @@ script = ExtResource("18_iaegw")
 unique_name_in_owner = true
 script = ExtResource("19_iaegw")
 
+[node name="building_archeryrange_blue" parent="Builder/Building" instance=ExtResource("16_s4ole")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+
+[node name="building_blacksmith_blue" parent="Builder/Building" instance=ExtResource("17_x1py8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.725, 2, 0.99592924)
+
+[node name="building_lumbermill_blue" parent="Builder/Building" instance=ExtResource("18_v23gc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.45, 3, 3.983717)
+
+[node name="building_mine_blue" parent="Builder/Building" instance=ExtResource("19_n7dut")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.45, 2, 1.9918585)
+
 [node name="Hex" type="Node3D" parent="Builder"]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 script = ExtResource("20_2gh7q")
+
+[node name="hex_grass" parent="Builder/Hex" instance=ExtResource("21_718su")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.625, 1, 2.9877877)
+
+[node name="hex_grass2" parent="Builder/Hex" instance=ExtResource("21_718su")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.625, 1, 0.99592924)
+
+[node name="hex_grass3" parent="Builder/Hex" instance=ExtResource("21_718su")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.625, 1, -0.99592924)
 
 [node name="Other" type="Node3D" parent="Builder"]
 unique_name_in_owner = true
@@ -215,12 +241,12 @@ settings = "res://save/s1"
 unique_name_in_owner = true
 layout_mode = 2
 bbcode_enabled = true
-text = "[b]Calculate Map Positions -- [/b][i]48.0ms
+text = "[b]Calculate Map Positions -- [/b][i]83.0ms
 [/i][b]Processing Voxels total -- [/b][i]1ms
 [/i][b]Build voxels -- [/b][i]2ms
-[/i][b]Create Voxel Mesh -- [/b][i]11ms
-[/i][b]Spawn Villages -- [/b][i]17ms
-[/i][b]Total completion time: [/b][i]79.0ms[/i]"
+[/i][b]Create Voxel Mesh -- [/b][i]20ms
+[/i][b]Spawn Villages -- [/b][i]6ms
+[/i][b]Total completion time: [/b][i]112.0ms[/i]"
 fit_content = true
 scroll_active = false
 autowrap_mode = 0

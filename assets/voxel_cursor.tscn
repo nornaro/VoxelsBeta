@@ -6,6 +6,6 @@
 
 [node name="voxel_cursor" instance=ExtResource("1_rqovr")]
 
-[node name="Cylinder" parent="." index="0" groups=["hexcursor"]]
+[node name="Cylinder" parent="." index="0" groups=["hexcursorres"]]
 mesh = ExtResource("2_gis62")
 surface_material_override/0 = ExtResource("2_vaki8")

@@ -13,6 +13,5 @@ Thank You for watching!
 """
 2DO
 
-select, place multiple, delete
-check save
+select delete
 """

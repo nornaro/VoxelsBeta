@@ -1,5 +1,6 @@
 @tool
 class_name Voxel
+extends StaticBody3D
 
 var grid_position_xyz : Vector3i
 var grid_position_xz : Vector2i
@@ -16,3 +17,5 @@ var neighbors = []
 var placeable = true
 var occupier : Unit
 var collider
+
+var yoffset:float = 1

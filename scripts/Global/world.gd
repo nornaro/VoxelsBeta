@@ -3,6 +3,7 @@ extends Node
 
 var map_as_dict : Dictionary[Vector3i, Voxel] = {}
 var map_xz_dict : Dictionary[Vector2i, Vector3] = {}
+var map_pos_dict : Dictionary[Vector3, Voxel] = {}
 var is_map_staggered = false
 var world_settings : GenerationSettings
 var noise_range : Vector2
@@ -13,14 +14,15 @@ var surface_layer: Dictionary[Vector3i, Voxel] = {}
 func set_map(all_voxels, top_voxels):
 	map_as_dict.clear()
 	map_xz_dict.clear()
-	for voxel : Voxel in all_voxels:
+	for voxel : Voxel in all_voxels.values():
 		map_as_dict[Vector3i(voxel.grid_position_xyz)] = voxel
-	for t_voxel : Voxel in top_voxels:
+	for t_voxel : Voxel in top_voxels.values():
 		surface_layer[Vector3i(t_voxel.grid_position_xyz)] = t_voxel
 		var intvector: Vector2i = Vector2i(
 			roundi(t_voxel.world_position.x),
 			roundi(t_voxel.world_position.z))
 		map_xz_dict[intvector] = t_voxel.world_position
+		map_pos_dict[t_voxel.world_position] = t_voxel
 
 
 func clear_map():

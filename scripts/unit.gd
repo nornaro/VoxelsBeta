@@ -22,9 +22,13 @@ func _ready() -> void:
 
 
 ## Put this unit on a tile at position
-func place_unit(voxel: Voxel):
-	position = voxel.world_position
-	position.y += WorldMap.world_settings.voxel_height
+func place_unit(voxel: Voxel = null):
+	if voxel:
+		position = voxel.world_position + Vector3(0,WorldMap.world_settings.voxel_height,0)
+	if !voxel:
+		if !WorldMap.map_pos_dict.has(position - Vector3.UP):
+			return
+		voxel = WorldMap.map_pos_dict[position - Vector3.UP]
 	leave_tile()
 	occupy_tile(voxel)
 

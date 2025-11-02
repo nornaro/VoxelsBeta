@@ -215,12 +215,12 @@ settings = "res://save/s1"
 unique_name_in_owner = true
 layout_mode = 2
 bbcode_enabled = true
-text = "[b]Calculate Map Positions -- [/b][i]48.0ms
+text = "[b]Calculate Map Positions -- [/b][i]83.0ms
 [/i][b]Processing Voxels total -- [/b][i]1ms
 [/i][b]Build voxels -- [/b][i]2ms
-[/i][b]Create Voxel Mesh -- [/b][i]11ms
-[/i][b]Spawn Villages -- [/b][i]17ms
-[/i][b]Total completion time: [/b][i]79.0ms[/i]"
+[/i][b]Create Voxel Mesh -- [/b][i]20ms
+[/i][b]Spawn Villages -- [/b][i]6ms
+[/i][b]Total completion time: [/b][i]112.0ms[/i]"
 fit_content = true
 scroll_active = false
 autowrap_mode = 0

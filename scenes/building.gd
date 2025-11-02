@@ -7,7 +7,10 @@ func load_component(folder:String):
 	for file:String in DirAccess.get_files_at(folder):
 		if !file.contains(".tscn"):
 			continue
-		var instance:CollisionObject3D = load(folder+file).instantiate()
+		var instance:Node3D = load(folder+file).instantiate()
+		var script = "res://scripts/"+name.to_lower()+".gd"
+		if FileAccess.file_exists(script):
+			instance.set_script(load(script))
 		add_child(instance)
 
 func save_component(folder:String):
@@ -15,4 +18,8 @@ func save_component(folder:String):
 		DirAccess.make_dir_recursive_absolute(folder)
 		%Save.set_ownership(self,child)
 		%Save.save(folder + str(child.get_instance_id()) +".tscn", child)
-		#%WorldGenerator.settings.save_settings(folder + str(child.seed) +".tres",child.Data)
+
+func clear_objects():
+	var children = get_children()
+	for c in children:
+		c.free()

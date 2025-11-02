@@ -19,3 +19,8 @@ func save_component(folder:String):
 		%WorldGenerator.settings.map_seed = child.get_meta("seed")
 		%WorldGenerator.settings.noise.seed = child.get_meta("seed")
 		%WorldGenerator.settings.save_settings(folder+name + str(child.get_meta("seed")) +".tres")
+
+func clear_objects():
+	var children = get_children()
+	for c in children:
+		c.free()

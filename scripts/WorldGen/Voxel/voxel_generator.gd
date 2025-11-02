@@ -1,11 +1,11 @@
 @tool
 class_name VoxelGenerator
 
-var map : Array[Voxel]
+var map : Dictionary[Vector3i, Voxel]
 var map_dict : Dictionary[Vector3i, Voxel]
 const sides = 6
 var settings : GenerationSettings
-var surface_voxels : Array[Voxel]
+var surface_voxels : Dictionary[Vector3i, Voxel]
 
 const ATLAS_RES   = Vector2i(512, 512)	# full atlas resolution in pixels
 const TILE_SIZE   = Vector2i(16, 16)	# usable area of one tile
@@ -23,7 +23,7 @@ const base_vertices = [
 	]
 
 
-func generate_chunk(_map : Array[Voxel], interval) -> Chunk:
+func generate_chunk(_map :Dictionary[Vector3i, Voxel], interval) -> Chunk:
 	map = _map
 	settings = WorldMap.world_settings
 	var verts = PackedVector3Array()
@@ -34,7 +34,7 @@ func generate_chunk(_map : Array[Voxel], interval) -> Chunk:
 	print("Correction passes: ", process_vector.x, ". Total voxels removed: ", process_vector.y)
 	interval["Processing Voxels total -- "] = Time.get_ticks_msec()
 	
-	for voxel in map:
+	for voxel in map.values():
 		assign_type(voxel)
 		var prism = build_hex_prism(voxel)
 		var v_offset = verts.size() # start at last indice to not overwrite old ones
@@ -68,25 +68,28 @@ func generate_chunk(_map : Array[Voxel], interval) -> Chunk:
 func prepared_chunk(surface) -> Chunk:
 	var chunk = Chunk.new()
 	chunk.mesh = surface.commit()
-	chunk.voxels = map
+	var map_arr:Array[Voxel] = map.values()
+	chunk.voxels = map_arr
 	chunk.material_override = settings.material
 	return chunk
 
 
 func process_voxels() -> Vector2i:
 	# Prepare counters
+	print(map_dict.values().size()," :: ",map.size())
 	var passes = 0
 	var total_removed = 0
 	
-	for voxel in map: # do this once
+	for voxel in map.values(): # do this once
 		normalize_voxel_noise(voxel)
 		assign_air_probability(voxel)
 		map_dict[voxel.grid_position_xyz] = voxel
 	
 	while passes < 20:
 		var removed = 0
-		for i in range(map.size()):
-			var voxel = map[i]
+		var map_arr:Array = map.values()
+		for i in range(map_arr.size()):
+			var voxel = map_arr[i]
 			if voxel.type != VoxelData.voxel_type.AIR:
 				if shape_geometry(voxel):
 					removed += 1
@@ -225,7 +228,7 @@ func build_hex_prism(voxel: Voxel) -> Dictionary:
 	neighbor.y += 1
 	if draw_face_towards(neighbor):
 		voxel.surface_voxel = true
-		surface_voxels.append(voxel)
+		surface_voxels[voxel.grid_position_xyz] = voxel
 		for i in range(sides):
 			var angle = TAU * float(i) / float(sides)
 			var x = cos(angle) * size

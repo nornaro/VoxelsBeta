@@ -77,7 +77,7 @@ _data = {
 &"idle": SubResource("Animation_nt0i0")
 }
 
-[node name="hexagon_cursor" type="StaticBody3D"]
+[node name="hexagon_cursor" type="StaticBody3D" groups=["hexcursor"]]
 top_level = true
 visible = false
 script = ExtResource("2_bbsu3")

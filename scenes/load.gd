@@ -11,6 +11,10 @@ func _ready() -> void:
 	connect("pressed",_on_pressed)
 
 func _on_pressed() -> void:
+	for child in %Builder.get_children():
+		if !child.has_method("clear_objects"):
+			continue
+		child.clear_objects()
 	if Engine.is_editor_hint():
 		save_dir = settings + "/"
 	if !%LoadList.visible and !Engine.is_editor_hint():

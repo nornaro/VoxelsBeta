@@ -23,6 +23,8 @@ func _process(delta: float) -> void:
 
 func move_camera(delta):
 	## Movement
+	if Input.is_key_pressed(KEY_SHIFT):
+		return
 	var move_vector : Vector3 = Vector3.ZERO
 	if Input.is_action_pressed("MoveForward"):
 		move_vector += -parent.transform.basis.z
@@ -53,9 +55,16 @@ func _input(event: InputEvent) -> void:
 
 
 func change_fov(index):
+	if Input.is_key_pressed(KEY_SHIFT):
+		if index == MOUSE_BUTTON_WHEEL_UP:
+			movespeed += 1
+		if index == MOUSE_BUTTON_WHEEL_DOWN:
+			movespeed = 1
+		movespeed = clamp(movespeed,0,100)
+		return
 	if index == MOUSE_BUTTON_WHEEL_UP:
 		fov = max(zoom.x, fov - zoomspeed)  # Zoom in by decreasing FOV
-	elif index == MOUSE_BUTTON_WHEEL_DOWN:
+	if index == MOUSE_BUTTON_WHEEL_DOWN:
 		fov = min(zoom.y, fov + zoomspeed)  # Zoom out by increasing FOV
 	
 
