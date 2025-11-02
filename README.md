@@ -37,3 +37,13 @@ https://youtu.be/pVckYwh_fKk
 ### Donation
 Consider making me work faster with a coffee:
 https://www.buymeacoffee.com/forlornu
+
+Added additionally by stevepine:
+1. Compatibility with KayKit : Medieval Hexagon Pack (1.0)
+   Imported as tscn/tres to godot, with rotation correction, collision and static body
+2. Place, rotate, elevate objects in editor or runtime with snap points
+3. Save/Load in editor or runtime - save formats need some work
+4. Minimal config UI at runtime
+5. obj importer: Creates Staticbody->mesh + multiple convex collisions structure
+
+
