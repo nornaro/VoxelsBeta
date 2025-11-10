@@ -11,19 +11,23 @@ func _ready() -> void:
 	connect("pressed",_on_pressed)
 
 func _on_pressed() -> void:
-	for child in %Builder.get_children():
-		if !child.has_method("clear_objects"):
-			continue
-		child.clear_objects()
 	if Engine.is_editor_hint():
 		save_dir = settings + "/"
 	if !%LoadList.visible and !Engine.is_editor_hint():
 		%LoadList.clear()
+		DirAccess.make_dir_recursive_absolute(save_dir)
 		for dir:String in DirAccess.get_directories_at(save_dir):
 			%LoadList.add_item(dir)
 		%LoadList.show()
 		%Panel.mouse_filter = MouseFilter.MOUSE_FILTER_STOP
 		return
+	if %LoadList.get_selected_items().is_empty():
+		%LoadList.hide()
+		return
+	for child in %Builder.get_children():
+		if !child.has_method("clear_objects"):
+			continue
+		child.clear_objects()
 	DirAccess.make_dir_recursive_absolute(save_dir)
 	iterate_components()
 	

@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://bbqxpsy3vniy8"]
+[gd_scene load_steps=35 format=3 uid="uid://bbqxpsy3vniy8"]
 
 [ext_resource type="Script" uid="uid://b1ue240ay0tgt" path="res://scripts/camera_script.gd" id="1_1xefc"]
 [ext_resource type="Texture2D" uid="uid://dvbkqw12i4obk" path="res://assets/Materials/SkyBG.png" id="2_l7mlp"]
@@ -24,6 +24,7 @@
 [ext_resource type="PackedScene" uid="uid://dxs306fmmgkw8" path="res://scenes/Cursors/hexagon_cursor_sb.tscn" id="18_icif4"]
 [ext_resource type="Script" uid="uid://i50uhhytt4wq" path="res://scenes/building.gd" id="19_iaegw"]
 [ext_resource type="Script" uid="uid://cyiwcix8vwivc" path="res://scenes/tile.gd" id="20_2gh7q"]
+[ext_resource type="Script" uid="uid://dlwj4rvxd06ou" path="res://scenes/label.gd" id="25_3t3mo"]
 [ext_resource type="Script" uid="uid://mp7exrjs3ec1" path="res://scenes/inventory_container.gd" id="25_f2kej"]
 
 [sub_resource type="GDScript" id="GDScript_iaegw"]
@@ -56,7 +57,6 @@ material = SubResource("StandardMaterial3D_s4ole")
 viewport_path = NodePath("CameraParent/Minimap")
 
 [node name="World" type="Node3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8288405, 0)
 script = SubResource("GDScript_iaegw")
 
 [node name="CameraParent" type="Node3D" parent="."]
@@ -215,12 +215,12 @@ settings = "res://save/s1"
 unique_name_in_owner = true
 layout_mode = 2
 bbcode_enabled = true
-text = "[b]Calculate Map Positions -- [/b][i]25.0ms
+text = "[b]Calculate Map Positions -- [/b][i]12.0ms
 [/i][b]Processing Voxels total -- [/b][i]1ms
-[/i][b]Build voxels -- [/b][i]3ms
-[/i][b]Create Voxel Mesh -- [/b][i]6ms
-[/i][b]Spawn Villages -- [/b][i]20ms
-[/i][b]Total completion time: [/b][i]55.0ms[/i]"
+[/i][b]Build voxels -- [/b][i]2ms
+[/i][b]Create Voxel Mesh -- [/b][i]7ms
+[/i][b]Spawn Villages -- [/b][i]6ms
+[/i][b]Total completion time: [/b][i]28.0ms[/i]"
 fit_content = true
 scroll_active = false
 autowrap_mode = 0
@@ -338,7 +338,23 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="InventoryContainer" type="TabContainer" parent="Control"]
+[node name="Label" type="Label" parent="Control"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = 185.5
+offset_bottom = 208.5
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("25_3t3mo")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Control"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 240)
 layout_mode = 1
@@ -348,6 +364,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 0
+horizontal_scroll_mode = 0
+
+[node name="InventoryContainer" type="TabContainer" parent="Control/ScrollContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 240)
+layout_mode = 2
+size_flags_horizontal = 3
 script = ExtResource("25_f2kej")
 
 [connection signal="pressed" from="Control/HBoxContainer/VBoxContainer/Gen/Generate" to="Builder/WorldGenerator" method="_ready"]

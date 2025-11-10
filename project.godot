@@ -31,11 +31,7 @@ window/stretch/aspect="ignore"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/scene_texture/plugin.cfg")
-
-[filesystem]
-
-import/blender/enabled=false
+enabled=PackedStringArray()
 
 [global_group]
 

@@ -59,6 +59,7 @@ func _process(_delta: float) -> void:
 func runtime_input():
 	if !selected:
 		return
+	var cursorres:MeshInstance3D = get_tree().get_first_node_in_group("hexcursorres")
 	if Input.is_key_pressed(KEY_SHIFT):
 		if is_key_just_pressed(KEY_A):
 			voxel_cursor.rotation.y -= deg_to_rad(30)
@@ -68,6 +69,13 @@ func runtime_input():
 			voxel_cursor.position.y -= 1
 		if is_key_just_pressed(KEY_W):
 			voxel_cursor.position.y += 1
+		if is_key_just_pressed(KEY_KP_ADD):
+			cursorres.scale += Vector3(0.1,0.1,0.1)
+			%Label.show_text("Scale: " + str(roundf(cursorres.scale.x * 10.0) / 10.0))
+		if is_key_just_pressed(KEY_KP_SUBTRACT):
+			cursorres.scale -= Vector3(0.1,0.1,0.1)
+			%Label.show_text("Scale: " + str(roundf(cursorres.scale.x * 10.0) / 10.0))
+			
 
 func editor_input() -> void:
 	if !selected:
@@ -305,6 +313,7 @@ func _input(event: InputEvent) -> void:
 		instance.rotation = voxel_cursor.rotation
 		instance.add_to_group(parent.name)
 		instance.name = str(instance.get_instance_id())
+		instance.scale = get_tree().get_first_node_in_group("hexcursorres").scale
 		var script = "res://scripts/"+parent.name.to_lower()+".gd"
 		if FileAccess.file_exists(script):
 			instance.set_script(load(script))
@@ -317,6 +326,7 @@ func _input(event: InputEvent) -> void:
 		
 func reset_cursor():
 	var cursorres:MeshInstance3D = get_tree().get_first_node_in_group("hexcursorres")
+	cursorres.scale = Vector3.ONE
 	voxel_cursor.rotation.y = 0
 	voxel_cursor.position.y = 0
 	cursorres.mesh = default_hexcursor_res
@@ -326,7 +336,6 @@ func reset_cursor():
 	cursorres.position.y = 0
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.albedo_color.a = 0.75
-	mat.force_transparent = true
 	mat.blend_mode = BaseMaterial3D.BLEND_MODE_MIX
 	selected = null
 	

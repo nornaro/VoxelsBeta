@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="GenerationSettings" load_steps=4 format=3 uid="uid://bl1l6q7kg03l8"]
 
-[ext_resource type="Script" uid="uid://0k8jgfy8cqfx" path="res://scripts/WorldGen/generation_settings.gd" id="1_eiv65"]
+[ext_resource type="Script" path="res://scripts/WorldGen/generation_settings.gd" id="1_eiv65"]
 [ext_resource type="Material" uid="uid://dcw7nje4jt2wj" path="res://assets/Materials/testmat.tres" id="1_x67sk"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_fe1qq"]

@@ -1,8 +1,8 @@
-[gd_resource type="ArrayMesh" load_steps=4 format=4 uid="uid://dibqjr1lorjnj"]
+[gd_resource type="ArrayMesh" load_steps=4 format=4 uid="uid://dd8icac5qqfgs"]
 
 [ext_resource type="Texture2D" uid="uid://d3v58iy3kuasl" path="res://Textures/hexagons_medieval.png" id="1_v04b5"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v04b5"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4k4dc"]
 albedo_texture = ExtResource("1_v04b5")
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_ud2ul"]
@@ -28,7 +28,7 @@ _surfaces = [{
 "index_count": 213,
 "index_data": PackedByteArray("AAABAFcAVwABAFgABAAAAFcAVwBZAAQABABZAAUAWgBbAFwAXQBaAFwAXgBaAF0AXwBeAF0AYABeAF8AYQBgAF8ACABiAAoAYwBiAAgAZABiAGMAYgBlAAoACgBlAA0AZgBnAAMAAwBnAGgAAgBmAAMAaQAJAGoAagAJAAwAawBpAGoAbABpAGsAbQAGAG4AbgAGAAcADgBvAA8ADwBvAAsAEABwAHEAcQBwAHIAcAARAHIAcgARABIAEwAUABUAFQAUABYAcwAYABkAGQAYABoAHAAdAHQAdAAdAB4AdQB2AHcAdwB2ACAAeAB5AHoAegB5AHsAewB5AHwAfQB+AB8AHwB+ACEAFwAbAH8AfwAbAIAAIgAjACQAJAAjACUAJgAnACgAKAAnACkAKgArACwALAArAC0ALgAvADAAMAAvADEAMQAvADIAMwA0ADUANQA0ADYANwA4ADkAOQA4ADoAOwA8AD0ARABFAEYAQABBAD4AgQBHAEgASQBKAIIAQgBDAIMAhAA/AIUASwBMAE0AUABRAFIAhgBTAFQAhwBVAFYATgBPAIgA"),
 "lods": [0.27716312, PackedByteArray("AAABAAIAAwACAAEABAAAAAIABAACAAUAAgAGAAUABQAGAAcACAAJAAoACwAJAAgACQAMAAoACgAMAA0ADgAJAAsADwAOAAsAEAARABIAEwAUABUAFQAUABYAFwAYABkAGQAYABoAFwAbABgAHAAdAB4AHAAeAB8AHwAeACAAHwAgACEAIgAjACQAJAAjACUAJgAnACgAKAAnACkAKgArACwALAArAC0ALgAvADAAMAAvADEAMQAvADIAMwA0ADUANQA0ADYANwA4ADkAOQA4ADoAOwA8AD0APgA/ADsAQABBAD4AQgBDAEAARABFAEYARgBHAEgASQBKAEQASwBMAE0ATgBPAEsAUABRAFIAUgBTAFQAVABVAFYA")],
-"material": SubResource("StandardMaterial3D_v04b5"),
+"material": SubResource("StandardMaterial3D_4k4dc"),
 "name": "hexagons_medieval",
 "primitive": 3,
 "uv_scale": Vector4(0, 0, 0, 0),

@@ -1,8 +1,8 @@
-[gd_resource type="ArrayMesh" load_steps=4 format=4 uid="uid://cevsdfkdr256l"]
+[gd_resource type="ArrayMesh" load_steps=4 format=4 uid="uid://bxaiqqatxj0i4"]
 
 [ext_resource type="Texture2D" uid="uid://d3v58iy3kuasl" path="res://Textures/hexagons_medieval.png" id="1_cy1qj"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cy1qj"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pn7dy"]
 albedo_texture = ExtResource("1_cy1qj")
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_g8scy"]
@@ -26,7 +26,7 @@ _surfaces = [{
 "format": 34359742487,
 "index_count": 216,
 "index_data": PackedByteArray("AAABAAIAAgABAAMABAAFAAYABgAFAAcACAAJAAoACgAJAAsADAANAA4ADgANAA8AEAARABIAEgARABMAFAAVABYAFgAVABcAGAAZABoAGgAZABsAHAAdAB4AHgAdAB8AIAAhACIAIgAhACMAJAAlACYAJgAlACcAKAApACoAKgApACsALAAtAC4ALgAtAC8AMAAxADIAMgAxADMANAA1ADYANgA1ADcAOAA5ADoAOgA5ADsAPAA9AD4APgA9AD8AQABBAEIAQgBBAEMARABFAEYARgBFAEcASABJAEoASgBJAEsATABNAE4ATgBNAE8AUABRAFIAUgBRAFMAVABVAFYAVgBVAFcAWABZAFoAWgBZAFsAXABdAF4AXgBdAF8AYABhAGIAYgBhAGMAZABlAGYAZgBlAGcAaABpAGoAagBpAGsAbABtAG4AbgBtAG8AcABxAHIAcgBxAHMAdAB1AHYAdgB1AHcAeAB5AHoAegB5AHsAfAB9AH4AfgB9AH8AgACBAIIAggCBAIMAhACFAIYAhgCFAIcAiACJAIoAigCJAIsAjACNAI4AjgCNAI8A"),
-"material": SubResource("StandardMaterial3D_cy1qj"),
+"material": SubResource("StandardMaterial3D_pn7dy"),
 "name": "hexagons_medieval",
 "primitive": 3,
 "uv_scale": Vector4(0, 0, 0, 0),

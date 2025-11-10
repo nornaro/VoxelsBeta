@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://dx2p408ed3cho"]
+
+[ext_resource type="Texture2D" uid="uid://ds8rmdbsj8p0a" path="res://assets/kaykit_medieval_hexagon_pack/buildings/blue/building_tower_catapult_blue_catapult_turret_blue.webp" id="1_k1mqk"]
+
+[node name="TextureButton" type="TextureButton"]
+custom_minimum_size = Vector2(100, 100)
+texture_normal = ExtResource("1_k1mqk")
+ignore_texture_size = true
+stretch_mode = 0

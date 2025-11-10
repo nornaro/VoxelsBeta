@@ -2,6 +2,8 @@ extends TabContainer
 
 var base_path:String = "res://assets/kaykit_medieval_hexagon_pack/"
 @onready var button_script:Script = preload("res://scripts/hex_buildable.gd")
+@onready var tb:PackedScene = preload("res://scenes/texture_button.tscn")
+
 
 func _ready() -> void:
 	get_folder_dict()
@@ -18,7 +20,7 @@ func get_folder_dict(path:String = "res://assets/kaykit_medieval_hexagon_pack/")
 	for key in result.keys():
 		var instance := GridContainer.new()
 		instance.name = key
-		instance.columns = floori(%InventoryContainer.size.x / 100)
+		instance.columns = floori(%ScrollContainer.size.x / 100)-1
 		
 		for filename in DirAccess.get_files_at(result[key]):
 			var filepath :String = result[key] + "/" + filename
@@ -37,11 +39,9 @@ func get_folder_dict(path:String = "res://assets/kaykit_medieval_hexagon_pack/")
 			var temp_scene := PackedScene.new()
 			temp_scene.pack(mesh_node)
 			
-			var tex :SceneTexture = SceneTexture.new()
-			tex.camera_distance *= 3
-			tex.scene = temp_scene
-			var item := TextureButton.new()
-			item.texture_normal = tex
+			var item = tb.instantiate()
+			item.texture_normal = load(filepath.replace(".tres",".webp"))
+			item.stretch_mode = TextureButton.STRETCH_SCALE
 			item.name = str(filename.get_basename())
 			item.tooltip_text = filepath
 			item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
